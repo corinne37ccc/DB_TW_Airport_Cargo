@@ -4,10 +4,13 @@
 Taiwan Airport Air Cargo Statistics Dashboard
 資料範圍：2015–2025年｜資料來源：交通部民航局統計月報
 
+網頁連結：https://corinne37ccc.github.io/DB_TW_Airport_Cargo/DB_TW_Airport_Cargo-data.html
+
+內容
 Tab 1｜全國總覽
 全台各機場歷年貨運量（總量、進口、出口、轉口）趨勢與各機場貨量佔比。
 
-Tab 2｜桃園機場 — 貨量總體分析
+Tab 2｜桃園機場 — 貨量總體分析。
 子頁籤「總覽」：桃園機場歷年貨量趨勢與進出口結構分析。
 子頁籤「貨運站比較」：華儲、遠雄、長榮等各貨運站歷年處理量比較與交叉分析。
 
