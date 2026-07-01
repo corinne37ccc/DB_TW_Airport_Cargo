@@ -612,6 +612,48 @@ footer {
 }
 
 /* ============================================================
+   Other Airports page — airport pills + subnav
+   ============================================================ */
+.oa-airport-tabs {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: -4px;
+}
+.oa-ap-btn {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  padding: 7px 18px;
+  cursor: pointer; color: var(--text-2);
+  font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif;
+  transition: all .13s; white-space: nowrap;
+}
+.oa-ap-btn:hover { border-color: var(--primary-mid); color: var(--primary-dark); }
+.oa-ap-btn.active { background: var(--primary-dark); color: #fff; border-color: var(--primary-dark); }
+.oa-subnav {
+  display: flex; gap: 0; overflow-x: auto;
+  background: var(--primary-dark); border-radius: 10px;
+  padding: 0 12px; margin-bottom: 4px;
+}
+.oa-sub-btn {
+  border: none; background: transparent;
+  color: rgba(255,255,255,.65);
+  font-size: 13px; font-weight: 500;
+  padding: 12px 20px; cursor: pointer;
+  font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap; transition: color .15s;
+}
+.oa-sub-btn:hover { color: #fff; }
+.oa-sub-btn.active { color: #fff; font-weight: 700; border-bottom-color: var(--accent-rust); }
+@media (max-width: 480px) {
+  .oa-ap-btn { font-size: 12px; padding: 5px 12px; }
+  .oa-sub-btn { font-size: 12px; padding: 10px 14px; }
+}
+
+/* ============================================================
    Metric toggle button group
    ============================================================ */
 .btn-group { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -831,23 +873,23 @@ footer {
           <select id="ty-term-pie-year" class="ctrl-sel"></select>
         </div>
       </div>
-      <div id="ty-term-pies-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"></div>
+      <div id="ty-term-pies-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px"></div>
     </div>
 
     <!-- 5. 交叉比較：歷年折線圖 -->
     <div class="card">
       <div class="card-title">交叉比較：歷年折線圖</div>
-      <div style="display:flex;gap:0">
-        <div style="flex:0 0 170px;border-right:1px solid var(--border);padding-right:16px;max-height:480px;overflow-y:auto">
-          <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">統計對象（可多選）</div>
-          <div id="ty-cross-checks"></div>
-          <div style="font-size:12px;font-weight:700;color:var(--text-2);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">統計項目（單選）</div>
-          <div id="ty-cross-radios"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="control-label">統計對象：</span>
+          <select id="ty-cross-entity-sel" style="min-width:130px"></select>
         </div>
-        <div style="flex:1;min-width:0;padding-left:16px">
-          <div class="chart-wrap" style="height:420px"><canvas id="chart-ty-cross"></canvas></div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="control-label">統計項目：</span>
+          <select id="ty-cross-metric-sel" style="min-width:130px"></select>
         </div>
       </div>
+      <div class="chart-wrap" style="height:380px"><canvas id="chart-ty-cross"></canvas></div>
     </div>
 
   </div>
@@ -863,7 +905,7 @@ footer {
     <div id="sub-trade-imp" class="subtab-panel active">
       <div style="display:flex;flex-direction:column;gap:20px;padding-top:4px">
         <!-- Row 1: 2×2 KPI + trend bar -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch">
+        <div class="grid-2" style="align-items:stretch">
           <div class="s-grid s-grid-2" id="imp-kpi-row" style="align-content:stretch"></div>
           <div class="card">
             <div class="card-title">歷年進口貨量趨勢（公噸）</div>
@@ -913,27 +955,19 @@ footer {
         <!-- Row 4: 歷年趨勢分析 — two independent charts -->
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 貨品類別（公噸）</div>
-          <div style="display:flex;gap:0">
-            <div style="flex:0 0 185px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:360px;padding-top:4px">
-              <div class="cross-section-label">選擇類別（可多選）</div>
-              <div id="imp-cross-cat-checks"></div>
-            </div>
-            <div style="flex:1;min-width:0;padding-left:16px">
-              <div class="chart-wrap" style="height:340px"><canvas id="chart-imp-cross-cat"></canvas></div>
-            </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="control-label">選擇類別：</span>
+            <select id="imp-cross-cat-checks" style="flex:1;min-width:0;max-width:300px"></select>
           </div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-imp-cross-cat"></canvas></div>
         </div>
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 來源國（公噸）</div>
-          <div style="display:flex;gap:0">
-            <div style="flex:0 0 185px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:360px;padding-top:4px">
-              <div class="cross-section-label">選擇來源國（可多選）</div>
-              <div id="imp-cross-country-checks"></div>
-            </div>
-            <div style="flex:1;min-width:0;padding-left:16px">
-              <div class="chart-wrap" style="height:340px"><canvas id="chart-imp-cross-country"></canvas></div>
-            </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="control-label">選擇來源國：</span>
+            <select id="imp-cross-country-checks" style="flex:1;min-width:0;max-width:300px"></select>
           </div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-imp-cross-country"></canvas></div>
         </div>
       </div>
     </div>
@@ -941,7 +975,7 @@ footer {
     <div id="sub-trade-exp" class="subtab-panel">
       <div style="display:flex;flex-direction:column;gap:20px;padding-top:4px">
         <!-- Row 1: 2×2 KPI + trend bar -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch">
+        <div class="grid-2" style="align-items:stretch">
           <div class="s-grid s-grid-2" id="exp-kpi-row" style="align-content:stretch"></div>
           <div class="card">
             <div class="card-title">歷年出口貨量趨勢（公噸）</div>
@@ -991,27 +1025,19 @@ footer {
         <!-- Row 4: 歷年趨勢分析 — two independent charts -->
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 貨品類別（公噸）</div>
-          <div style="display:flex;gap:0">
-            <div style="flex:0 0 185px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:360px;padding-top:4px">
-              <div class="cross-section-label">選擇類別（可多選）</div>
-              <div id="exp-cross-cat-checks"></div>
-            </div>
-            <div style="flex:1;min-width:0;padding-left:16px">
-              <div class="chart-wrap" style="height:340px"><canvas id="chart-exp-cross-cat"></canvas></div>
-            </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="control-label">選擇類別：</span>
+            <select id="exp-cross-cat-checks" style="flex:1;min-width:0;max-width:300px"></select>
           </div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-exp-cross-cat"></canvas></div>
         </div>
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 目的國（公噸）</div>
-          <div style="display:flex;gap:0">
-            <div style="flex:0 0 185px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:360px;padding-top:4px">
-              <div class="cross-section-label">選擇目的國（可多選）</div>
-              <div id="exp-cross-country-checks"></div>
-            </div>
-            <div style="flex:1;min-width:0;padding-left:16px">
-              <div class="chart-wrap" style="height:340px"><canvas id="chart-exp-cross-country"></canvas></div>
-            </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span class="control-label">選擇目的國：</span>
+            <select id="exp-cross-country-checks" style="flex:1;min-width:0;max-width:300px"></select>
           </div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-exp-cross-country"></canvas></div>
         </div>
       </div>
     </div>
@@ -1228,7 +1254,37 @@ footer {
      PAGE: 其他國際機場貨量分析
      ================================================================ -->
 <div id="page-other" class="page">
-  <div class="wip-placeholder">其他國際機場貨量分析（施工中）</div>
+
+  <!-- 機場選擇 pills -->
+  <div class="oa-airport-tabs">
+    <button class="oa-ap-btn active" onclick="switchOaAirport(this,'khh')">高雄國際機場</button>
+    <button class="oa-ap-btn" onclick="switchOaAirport(this,'tsa')">台北松山機場</button>
+    <button class="oa-ap-btn" onclick="switchOaAirport(this,'rmq')">台中機場</button>
+  </div>
+
+  <!-- ── 貨量總覽 ── -->
+  <div id="oa-overview" style="display:flex;flex-direction:column;gap:20px">
+    <div id="oa-overview-heading" style="font-size:18px;font-weight:700;color:var(--primary-dark);border-left:4px solid var(--accent-rust);padding-left:12px;letter-spacing:.01em"></div>
+    <div class="s-grid s-grid-4" id="oa-kpi-row"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="oa-total-title">歷年總貨量（公噸）</div>
+        <div class="chart-wrap" style="height:280px"><canvas id="chart-oa-total"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">歷年進口・出口・轉口貨量</div>
+        <div class="chart-wrap" style="height:280px"><canvas id="chart-oa-flow"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">年度貨量彙總表</div>
+      <div class="table-scroll">
+        <table class="data-table" id="oa-tbl"><thead></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+
 </div>
 
 <!-- ================================================================
@@ -1331,6 +1387,14 @@ const TERMINAL_ENTITIES = [
   { key: '各航空公司', label: '各航空公司', clr: CLR.terminal['各航空公司'] },
   { key: '永儲',       label: '永儲',        clr: CLR.terminal['永儲']       },
 ];
+
+const OA_AIRPORTS = [
+  { id:'khh', label:'高雄國際機場', annualKey:'高雄-華儲',         monthlyKey:'高雄機場合計', clr:CLR.airport.KHH },
+  { id:'tsa', label:'台北松山機場', annualKey:'松山-中科國際物流', monthlyKey:'松山機場合計', clr:CLR.airport.TSA },
+  { id:'rmq', label:'台中機場',     annualKey:'台中-華信倉儲',     monthlyKey:'台中機場合計', clr:CLR.airport.RMQ },
+];
+var _oaApId = 'khh';
+var _oaSub  = 'oa-overview';
 
 /* 進出口試算表欄位名稱（表12 / 表13 長格式）*/
 const TRADE_COL = {
@@ -2015,12 +2079,29 @@ function renderTaoyuanOverview() {
     var tot = vals.reduce(function(a, b) { return a + b; }, 0);
     return {
       responsive: true, maintainAspectRatio: false,
+      layout: { padding: 24 },
       plugins: {
         legend: { position: 'bottom', labels: { boxWidth: 12, color: '#5A7A8A', padding: 10, font: { size: 11 } } },
         datalabels: {
           display: function(ctx) { var v = ctx.dataset.data[ctx.dataIndex]; return tot > 0 && v / tot > 0.03; },
-          color: '#fff', font: { size: 11, weight: '700' },
-          textAlign: 'center',
+          color: function(ctx) {
+            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
+            return lbl.length > 4 ? '#333' : '#fff';
+          },
+          font: { size: 11, weight: '700' },
+          textAlign: 'center', clip: false,
+          anchor: function(ctx) {
+            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
+            return lbl.length > 4 ? 'end' : 'center';
+          },
+          align: function(ctx) {
+            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
+            return lbl.length > 4 ? 'end' : 'center';
+          },
+          offset: function(ctx) {
+            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
+            return lbl.length > 4 ? 4 : 0;
+          },
           formatter: function(v, ctx) {
             if (!tot) return '';
             return labels[ctx.dataIndex] + '\n' + (v / tot * 100).toFixed(1) + '%';
@@ -2299,7 +2380,7 @@ function renderTaoyuanTerminals() {
 
     grid.innerHTML = pieTerms.map(function(t) {
       return '<div style="text-align:center">'
-        + '<div style="font-size:12px;font-weight:600;color:' + t.clr + ';margin-bottom:8px">' + t.label + '</div>'
+        + '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">' + t.label + '</div>'
         + '<div style="position:relative;height:180px"><canvas id="chart-term-pie-' + t.key + '"></canvas></div>'
         + '</div>';
     }).join('');
@@ -2369,20 +2450,34 @@ function renderTaoyuanTerminals() {
     return d2[metricKey] || null;
   }
 
-  var _crossChecked = new Set(TERMINAL_ENTITIES.map(function(t) { return t.key; }));
-  var _crossMetric  = '總計貨運量';
+  /* 建立交叉比較下拉選單 */
+  var crossEntitySel = document.getElementById('ty-cross-entity-sel');
+  var crossMetricSel = document.getElementById('ty-cross-metric-sel');
+
+  /* 統計對象：第一個選項為「所有貨運站」，其餘為個別貨運站 */
+  crossEntitySel.innerHTML = '<option value="ALL">所有貨運站</option>'
+    + TERMINAL_ENTITIES.map(function(t) {
+        return '<option value="' + t.key + '">' + t.label + '</option>';
+      }).join('');
+
+  crossMetricSel.innerHTML = CROSS_METRICS.map(function(m, i) {
+    return '<option value="' + m.key + '"' + (i === 0 ? ' selected' : '') + '>' + m.label + '</option>';
+  }).join('');
 
   function renderCrossChart() {
-    var datasets = TERMINAL_ENTITIES
-      .filter(function(t) { return _crossChecked.has(t.key); })
-      .map(function(t) {
-        return {
-          label: t.label,
-          data: years.map(function(yr) { return getCrossVal(t.key, yr, _crossMetric); }),
-          borderColor: t.clr, backgroundColor: t.clr + '22',
-          tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5, spanGaps: false,
-        };
-      });
+    var entityVal = crossEntitySel.value;
+    var metricKey = crossMetricSel.value || '總計貨運量';
+    var entities = entityVal === 'ALL'
+      ? TERMINAL_ENTITIES
+      : TERMINAL_ENTITIES.filter(function(t) { return t.key === entityVal; });
+    var datasets = entities.map(function(t) {
+      return {
+        label: t.label,
+        data: years.map(function(yr) { return getCrossVal(t.key, yr, metricKey); }),
+        borderColor: t.clr, backgroundColor: t.clr + '22',
+        tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5, spanGaps: false,
+      };
+    });
     CHARTS['chart-ty-cross'] = new Chart(getOrDestroy('chart-ty-cross'), {
       type: 'line',
       data: { labels: years, datasets: datasets },
@@ -2403,36 +2498,8 @@ function renderTaoyuanTerminals() {
     });
   }
 
-  /* 建立 checkbox + radio 控制項 */
-  var checksEl  = document.getElementById('ty-cross-checks');
-  var radiosEl  = document.getElementById('ty-cross-radios');
-
-  checksEl.innerHTML = TERMINAL_ENTITIES.map(function(t) {
-    return '<label style="display:flex;align-items:center;gap:6px;margin:5px 0;cursor:pointer;font-size:12px;color:#5A7A8A">'
-      + '<input type="checkbox" data-key="' + t.key + '" checked>'
-      + '<span style="width:10px;height:10px;border-radius:2px;background:' + t.clr + ';flex-shrink:0"></span>'
-      + t.label + '</label>';
-  }).join('');
-
-  radiosEl.innerHTML = CROSS_METRICS.map(function(m, i) {
-    return '<label style="display:flex;align-items:center;gap:6px;margin:5px 0;cursor:pointer;font-size:12px;color:#5A7A8A">'
-      + '<input type="radio" name="ty-cross-metric" value="' + m.key + '"' + (i === 0 ? ' checked' : '') + '>'
-      + m.label + '</label>';
-  }).join('');
-
-  checksEl.querySelectorAll('input[type=checkbox]').forEach(function(cb) {
-    cb.addEventListener('change', function() {
-      if (this.checked) _crossChecked.add(this.dataset.key);
-      else _crossChecked.delete(this.dataset.key);
-      renderCrossChart();
-    });
-  });
-  radiosEl.querySelectorAll('input[type=radio]').forEach(function(rb) {
-    rb.addEventListener('change', function() {
-      _crossMetric = this.value;
-      renderCrossChart();
-    });
-  });
+  crossEntitySel.addEventListener('change', renderCrossChart);
+  crossMetricSel.addEventListener('change', renderCrossChart);
 
   renderCrossChart();
 }
@@ -2728,28 +2795,25 @@ function renderTradeSubtab(type, data) {
   var allCtries = Object.entries(byYrCtry[latestY] || {}).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];});
 
   function chkHtml(items, defaultN) {
+    /* Now renders <option> elements for a <select> dropdown */
     return items.map(function(item, i) {
-      return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:2px 0">'
-        + '<input type="checkbox" data-item="' + item.replace(/"/g,'&quot;') + '"' + (i < defaultN ? ' checked' : '') + '>'
-        + '<span style="font-size:11px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px" title="' + item + '">' + item + '</span>'
-        + '</label>';
+      return '<option value="' + item.replace(/"/g,'&quot;') + '"'
+        + (i === 0 ? ' selected' : '') + '>'
+        + item + '</option>';
     }).join('');
   }
 
-  function makeTrendLine(chartId, checksEl, getDataFn) {
+  function makeTrendLine(chartId, selEl, getDataFn) {
     function render() {
       var datasets = [], ci = 0;
-      var checked = Array.from(checksEl.querySelectorAll('input:checked'));
-      if (!checked.length) { getOrDestroy(chartId); return; }
-      checked.forEach(function(el) {
-        var item = el.dataset.item;
-        var clr  = CLR.seq[ci++ % CLR.seq.length];
-        datasets.push({
-          label: item,
-          data: years.map(function(yr) { return getDataFn(yr, item); }),
-          borderColor: clr, backgroundColor: clr + '22',
-          tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5,
-        });
+      var selectedVal = selEl.value;
+      if (!selectedVal) { getOrDestroy(chartId); return; }
+      var clr = CLR.seq[ci++ % CLR.seq.length];
+      datasets.push({
+        label: selectedVal,
+        data: years.map(function(yr) { return getDataFn(yr, selectedVal); }),
+        borderColor: clr, backgroundColor: clr + '22',
+        tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5,
       });
       CHARTS[chartId] = new Chart(getOrDestroy(chartId), {
         type: 'line',
@@ -2771,7 +2835,7 @@ function renderTradeSubtab(type, data) {
       });
     }
     render();
-    checksEl.addEventListener('change', render);
+    selEl.addEventListener('change', render);
   }
 
   var catChecksEl     = document.getElementById(type + '-cross-cat-checks');
@@ -3515,6 +3579,351 @@ function switchTySubtab(btn, barId) {
 }
 
 /* ============================================================
+   OTHER AIRPORTS PAGE
+   ============================================================ */
+
+function switchOaAirport(btn, apId) {
+  _oaApId = apId;
+  document.querySelectorAll('.oa-ap-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  if (DB.cargoData) renderOaCurrentPanel();
+}
+
+function switchOaPanel(btn, panelId) {
+  _oaSub = panelId;
+  document.querySelectorAll('.oa-sub-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  ['oa-overview','oa-monthly'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (id === panelId) { el.style.display = 'flex'; el.style.flexDirection = 'column'; }
+    else el.style.display = 'none';
+  });
+  if (DB.cargoData) renderOaCurrentPanel();
+}
+
+function renderOaCurrentPanel() {
+  if (_oaSub === 'oa-overview') renderOaOverview();
+  else _renderOaMonthlyAsync();
+}
+
+function renderOaOverview() {
+  var ap  = OA_AIRPORTS.find(function(a){ return a.id === _oaApId; }) || OA_AIRPORTS[0];
+  var ENT = ap.annualKey;
+  var y   = LATEST_YEAR;
+  var d     = (DB.cargoData[ENT] || {})[y]     || {};
+  var dPrev = (DB.cargoData[ENT] || {})[y - 1] || {};
+  var years = allYears().filter(function(yr){ return !!(DB.cargoData[ENT] && DB.cargoData[ENT][yr]); });
+  if (!years.length) years = allYears();
+
+  /* 台中機場貨量小，用公噸；高雄/松山用萬噸 */
+  var useWan = ap.id !== 'rmq';
+  function fmtV(v) {
+    return useWan
+      ? '<span class="s-value num">' + fmtWan(v) + '<span class="s-unit">萬噸</span></span>'
+      : '<span class="s-value num" style="font-size:26px">' + fmtN(v) + '<span class="s-unit" style="font-size:13px">公噸</span></span>';
+  }
+  function yAxisTick(v) {
+    return useWan ? Math.round(v / 10000) + '萬' : fmtN(v);
+  }
+  function barLabel(v) {
+    return v != null ? (useWan ? Math.round(v / 10000) + '萬' : fmtN(v)) : '';
+  }
+
+  var headEl = document.getElementById('oa-overview-heading');
+  if (headEl) headEl.textContent = y + '年 ' + ap.label + ' 貨量總覽';
+
+  var total  = d['總計貨運量'] || 0, totalP = dPrev['總計貨運量'] || 0;
+  var imp    = d['進口合計']   || 0, impP   = dPrev['進口合計']   || 0;
+  var exp    = d['出口合計']   || 0, expP   = dPrev['出口合計']   || 0;
+  var trans  = d['轉口合計']   || 0, transP = dPrev['轉口合計']   || 0;
+
+  function yoyBadge(curr, prev) {
+    if (!prev) return '';
+    var v = ((curr - prev) / prev * 100).toFixed(1);
+    return '<span class="' + (+v >= 0 ? 'yoy-pos' : 'yoy-neg') + '">'
+      + (+v >= 0 ? '▲' : '▼') + Math.abs(v) + '%</span> 較' + (y - 1) + '年';
+  }
+  function sCard(lbl, valHtml, sub) {
+    return '<div class="s-card"><div class="s-label">' + lbl + '</div>'
+      + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">'
+      + '<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:2px;justify-content:center">' + valHtml + '</div>'
+      + (sub ? '<div class="s-sub" style="text-align:center;margin-top:4px">' + sub + '</div>' : '')
+      + '</div></div>';
+  }
+  document.getElementById('oa-kpi-row').innerHTML = [
+    sCard('總貨運量', fmtV(total), yoyBadge(total, totalP)),
+    sCard('進口合計',
+      fmtV(imp) + '<span class="s-divider">|</span><span class="s-pct num">' + pctCalc(imp, total) + '</span><span class="s-pct-sym">%</span>',
+      yoyBadge(imp, impP)),
+    sCard('出口合計',
+      fmtV(exp) + '<span class="s-divider">|</span><span class="s-pct num">' + pctCalc(exp, total) + '</span><span class="s-pct-sym">%</span>',
+      yoyBadge(exp, expP)),
+    sCard('轉口合計',
+      fmtV(trans) + '<span class="s-divider">|</span><span class="s-pct num">' + pctCalc(trans, total) + '</span><span class="s-pct-sym">%</span>',
+      yoyBadge(trans, transP)),
+  ].join('');
+
+  var titleEl = document.getElementById('oa-total-title');
+  if (titleEl) titleEl.textContent = ap.label + ' 歷年總貨量（公噸）';
+
+  CHARTS['chart-oa-total'] = new Chart(getOrDestroy('chart-oa-total'), {
+    type: 'bar', plugins: [ChartDataLabels],
+    data: {
+      labels: years,
+      datasets: [{ data: years.map(function(yr){ return getVal(ENT, yr, '總計貨運量'); }),
+        backgroundColor: years.map(function(yr){ return yr === y ? ap.clr : ap.clr + '88'; }),
+        borderRadius: 4, borderSkipped: false }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, layout: { padding: { top: 22 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: { anchor:'end', align:'end', offset:-4,
+          color: function(ctx){ return ctx.dataIndex === years.length-1 ? ap.clr : '#5A7A8A'; },
+          font: { size:10, weight:'600' }, formatter: barLabel },
+        tooltip: Object.assign({}, TOOLTIP, { callbacks: { label: function(ctx){ return ' '+fmtN(ctx.raw)+' 公噸'; } } }),
+      },
+      scales: {
+        x: { grid: { display:false }, ticks: { color:'#5A7A8A' } },
+        y: { grid: { color:'rgba(90,122,138,.12)' }, ticks: { color:'#5A7A8A', callback: yAxisTick } },
+      },
+    },
+  });
+
+  CHARTS['chart-oa-flow'] = new Chart(getOrDestroy('chart-oa-flow'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        { key:'進口合計', label:'進口', clr:CLR.flow['進口合計'] },
+        { key:'出口合計', label:'出口', clr:CLR.flow['出口合計'] },
+        { key:'轉口合計', label:'轉口', clr:CLR.flow['轉口合計'] },
+      ].map(function(s){
+        return { label:s.label, data:years.map(function(yr){ return getVal(ENT,yr,s.key); }),
+          borderColor:s.clr, backgroundColor:s.clr+'22', tension:0.35, fill:false, pointRadius:3, pointHoverRadius:5 };
+      }),
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend: { position:'top', labels:{ boxWidth:14, color:'#5A7A8A', padding:12 } },
+        datalabels: { display:false },
+        tooltip: Object.assign({}, TOOLTIP, { callbacks:{ label: function(ctx){ return ' '+ctx.dataset.label+'：'+fmtN(ctx.raw)+' 公噸'; } } }),
+      },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ color:'#5A7A8A' } },
+        y: { grid:{ color:'rgba(90,122,138,.12)' }, ticks:{ color:'#5A7A8A', callback: yAxisTick } },
+      },
+    },
+  });
+
+  var ANN_COLS = [
+    { key:'總計貨運量',    label:'總計' },
+    { key:'進口合計',      label:'進口合計' },
+    { key:'出口合計',      label:'出口合計' },
+    { key:'轉口合計',      label:'轉口合計' },
+    { key:'一般及機放進口', label:'機放進口' },
+    { key:'一般及機放出口', label:'機放出口' },
+    { key:'快遞進口',      label:'快遞進口' },
+    { key:'快遞出口',      label:'快遞出口' },
+    { key:'轉口-進倉',     label:'轉口進倉' },
+    { key:'轉口-出倉',     label:'轉口出倉' },
+    { key:'轉口-機下直轉', label:'機下直轉' },
+  ];
+  var tbl = document.getElementById('oa-tbl');
+  tbl.querySelector('thead').innerHTML =
+    '<tr><th>年度</th>' + ANN_COLS.map(function(c){ return '<th>'+c.label+'</th>'; }).join('') + '</tr>';
+  var tbody = '';
+  years.slice().reverse().forEach(function(yr2) {
+    var row = (DB.cargoData[ENT] || {})[yr2] || {};
+    tbody += '<tr><td style="font-weight:600">'+yr2+'年</td>'
+      + ANN_COLS.map(function(c){ return '<td class="td-num">'+fmtN(row[c.key])+'</td>'; }).join('') + '</tr>';
+  });
+  tbl.querySelector('tbody').innerHTML = tbody;
+}
+
+async function _renderOaMonthlyAsync() {
+  try {
+    showLoading(true);
+    if (!DB.monthlyData) {
+      var rows = await fetchGviz(SHEETS.monthly);
+      DB.monthlyData = buildMonthlyData(rows);
+    }
+    renderOaMonthly();
+  } catch(err) {
+    console.error('[Aviation] OA Monthly error:', err);
+    var panel = document.getElementById('oa-monthly');
+    var errEl = document.createElement('div');
+    errEl.className = 'error-card';
+    errEl.innerHTML = '<div class="err-title">月報資料載入失敗</div>'
+      + '<div class="err-msg">'+(err.message||err)+'</div>'
+      + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 monthly Sheet ID 正確。</div>';
+    if (panel) panel.insertBefore(errEl, panel.firstChild);
+  } finally { showLoading(false); }
+}
+
+function renderOaMonthly() {
+  var ap  = OA_AIRPORTS.find(function(a){ return a.id === _oaApId; }) || OA_AIRPORTS[0];
+  var MON = DB.monthlyData || {};
+  var ENTITY = ap.monthlyKey;
+  var ML = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  var byYear = MON[ENTITY] || {};
+  var avYears = Object.keys(byYear).map(Number).sort(function(a,b){ return a-b; });
+  if (!avYears.length) {
+    var hEl = document.getElementById('oa-monthly-heading');
+    if (hEl) hEl.textContent = ap.label + ' 貨運月報（尚無月度資料）';
+    return;
+  }
+  var latestY  = avYears[avYears.length - 1];
+  var latestM  = Object.keys(byYear[latestY] || {}).map(Number).sort(function(a,b){ return b-a; })[0];
+
+  var headEl = document.getElementById('oa-monthly-heading');
+  if (headEl) headEl.textContent = latestY + '年 ' + ap.label + ' 貨運月報';
+  var kpiEl = document.getElementById('oa-mon-kpi-title');
+  var ytdEl = document.getElementById('oa-mon-ytd-title');
+  if (kpiEl) kpiEl.textContent = ML[latestM-1] + ' 月報重點';
+  if (ytdEl) ytdEl.textContent = latestY + '年 1–' + latestM + '月累計貨量';
+
+  function getMV(yr, mo, metric) { return ((byYear[yr]||{})[mo]||{})[metric]||0; }
+  function monBadge(curr, prev, suffix) {
+    if (!prev) return '';
+    var v = ((curr-prev)/prev*100).toFixed(1);
+    return '<span class="'+(+v>=0?'yoy-pos':'yoy-neg')+'">'+(+v>=0?'▲':'▼')+Math.abs(v)+'%</span> '+(suffix||'較去年同月');
+  }
+  function mCard(lbl, valHtml, sub) {
+    return '<div class="s-card" style="display:flex;flex-direction:column"><div class="s-label">'+lbl+'</div>'
+      + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">'
+      + '<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:2px;justify-content:center">'+valHtml+'</div>'
+      + (sub?'<div class="s-sub" style="text-align:center;margin-top:4px">'+sub+'</div>':'')
+      + '</div></div>';
+  }
+
+  /* KPI cards */
+  var cur  = (byYear[latestY]||{})[latestM]||{};
+  var prev = ((MON[ENTITY]||{})[latestY-1]||{})[latestM]||{};
+  var tot=cur['總計貨運量']||0, im=cur['進口合計']||0, ex=cur['出口合計']||0, tr=cur['轉口合計']||0;
+  var pTot=prev['總計貨運量']||0, pIm=prev['進口合計']||0, pEx=prev['出口合計']||0, pTr=prev['轉口合計']||0;
+  document.getElementById('oa-mon-kpi-row').innerHTML = [
+    mCard('當月總貨運量','<span class="s-value num">'+fmtWan(tot)+'<span class="s-unit">萬噸</span></span>',monBadge(tot,pTot)),
+    mCard('當月進口合計','<span class="s-value num">'+fmtWan(im)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(im,tot)+'</span><span class="s-pct-sym">%</span>',monBadge(im,pIm)),
+    mCard('當月出口合計','<span class="s-value num">'+fmtWan(ex)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(ex,tot)+'</span><span class="s-pct-sym">%</span>',monBadge(ex,pEx)),
+    mCard('當月轉口合計','<span class="s-value num">'+fmtWan(tr)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(tr,tot)+'</span><span class="s-pct-sym">%</span>',monBadge(tr,pTr)),
+  ].join('');
+
+  /* YTD cards */
+  function ytd(yr, metric) { var s=0; for(var mo=1;mo<=latestM;mo++) s+=getMV(yr,mo,metric); return s; }
+  var yTot=ytd(latestY,'總計貨運量'), yIm=ytd(latestY,'進口合計'), yEx=ytd(latestY,'出口合計'), yTr=ytd(latestY,'轉口合計');
+  var yPTot=ytd(latestY-1,'總計貨運量'), yPIm=ytd(latestY-1,'進口合計'), yPEx=ytd(latestY-1,'出口合計'), yPTr=ytd(latestY-1,'轉口合計');
+  var sfx = '較去年同期';
+  document.getElementById('oa-mon-ytd-row').innerHTML = [
+    mCard('累積總貨運量（1–'+latestM+'月）','<span class="s-value num">'+fmtWan(yTot)+'<span class="s-unit">萬噸</span></span>',monBadge(yTot,yPTot,sfx)),
+    mCard('累積進口合計','<span class="s-value num">'+fmtWan(yIm)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(yIm,yTot)+'</span><span class="s-pct-sym">%</span>',monBadge(yIm,yPIm,sfx)),
+    mCard('累積出口合計','<span class="s-value num">'+fmtWan(yEx)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(yEx,yTot)+'</span><span class="s-pct-sym">%</span>',monBadge(yEx,yPEx,sfx)),
+    mCard('累積轉口合計','<span class="s-value num">'+fmtWan(yTr)+'<span class="s-unit">萬噸</span></span><span class="s-divider">|</span><span class="s-pct num">'+pctCalc(yTr,yTot)+'</span><span class="s-pct-sym">%</span>',monBadge(yTr,yPTr,sfx)),
+  ].join('');
+
+  /* Trend chart */
+  (function() {
+    var checksEl   = document.getElementById('oa-mon-trend-yr-checks');
+    var btnGroupEl = document.getElementById('oa-mon-trend-metric-btns');
+    var curMetric  = btnGroupEl.querySelector('.metric-btn.active')
+      ? btnGroupEl.querySelector('.metric-btn.active').dataset.val : '總計貨運量';
+    var defaultOn  = avYears.slice(-3);
+    var LATEST_CLR = '#C82C1A';
+
+    checksEl.innerHTML = avYears.map(function(yr) {
+      var on = defaultOn.indexOf(yr) >= 0;
+      return '<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer">'
+        +'<input type="checkbox" data-yr="'+yr+'" '+(on?'checked':'')+'>'
+        +yr+'年</label>';
+    }).join('');
+
+    function renderTrend() {
+      var checked = Array.from(checksEl.querySelectorAll('input:checked'));
+      var checkedYrs = checked.map(function(el){ return +el.dataset.yr; });
+      var datasets = checked.map(function(el) {
+        var yr = +el.dataset.yr, isLatest = yr === latestY;
+        var idx = checkedYrs.filter(function(y){ return y < yr; }).length;
+        var clr = isLatest ? LATEST_CLR : CLR.seq[idx % CLR.seq.length];
+        return { label:yr+'年',
+          data:[1,2,3,4,5,6,7,8,9,10,11,12].map(function(mo){ return getMV(yr,mo,curMetric)||null; }),
+          borderColor:clr, backgroundColor:clr+'22', borderWidth:isLatest?2.5:1.5,
+          tension:0.35, fill:false, pointRadius:3, pointHoverRadius:5 };
+      });
+      CHARTS['chart-oa-mon-trend'] = new Chart(getOrDestroy('chart-oa-mon-trend'), {
+        type:'line', data:{ labels:ML, datasets:datasets },
+        options: { responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{position:'top',labels:{boxWidth:12,font:{size:11}}}, tooltip:TOOLTIP },
+          scales:{ x:{grid:{color:'#D8CEBD44'},ticks:{font:{size:11}}},
+            y:{grid:{color:'#D8CEBD44'},ticks:{font:{size:11},callback:function(v){ return fmtN(v); }}} } }
+      });
+    }
+    renderTrend();
+    checksEl.addEventListener('change', renderTrend);
+    btnGroupEl.onclick = function(e) {
+      var btn = e.target.closest('.metric-btn');
+      if (!btn) return;
+      btnGroupEl.querySelectorAll('.metric-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      curMetric = btn.dataset.val;
+      renderTrend();
+    };
+  })();
+
+  /* Comparison table */
+  (function() {
+    var monSel = document.getElementById('oa-mon-cmp-month');
+    var moOpts = '';
+    for (var m = 1; m <= 12; m++) {
+      if ((byYear[latestY]||{})[m]) moOpts += '<option value="'+m+'"'+(m===latestM?' selected':'')+'>'+ML[m-1]+'</option>';
+    }
+    monSel.innerHTML = moOpts;
+
+    var CMP_COLS = [
+      { label:'總計貨運量',    key:'總計貨運量' },
+      { label:'進口合計',      key:'進口合計' },
+      { label:'出口合計',      key:'出口合計' },
+      { label:'轉口合計',      key:'轉口合計' },
+      { label:'一般及機放進口', key:'一般及機放貨物_進口' },
+      { label:'一般及機放出口', key:'一般及機放貨物_出口' },
+      { label:'快遞進口',      key:'快遞_進口' },
+      { label:'快遞出口',      key:'快遞_出口' },
+      { label:'轉口-進倉',     key:'轉口_進倉' },
+      { label:'轉口-出倉',     key:'轉口_出倉' },
+      { label:'轉口-機下直轉', key:'轉口_機下直轉' },
+    ];
+    function renderCmpTable() {
+      var mo = +monSel.value;
+      var tbl = document.getElementById('oa-mon-cmp-table');
+      var years = avYears.slice().reverse(), prevY = years[1];
+      tbl.querySelector('thead').innerHTML =
+        '<tr><th>項目</th>' + CMP_COLS.map(function(c){ return '<th>'+c.label+'</th>'; }).join('') + '</tr>';
+      var tbody = '';
+      years.forEach(function(yr, i) {
+        var mdata = (byYear[yr]||{})[mo]||{};
+        tbody += '<tr><td style="font-weight:600;white-space:nowrap">'+yr+'年 '+ML[mo-1]+'</td>'
+          + CMP_COLS.map(function(c){ var v=mdata[c.key]; return '<td class="td-num">'+(v!=null?fmtN(v):'—')+'</td>'; }).join('') + '</tr>';
+        if (i===0 && prevY) {
+          var pm = (byYear[prevY]||{})[mo]||{};
+          tbody += '<tr style="background:var(--primary-bg)"><td style="font-weight:600;color:var(--text-2);white-space:nowrap">YoY vs '+prevY+'年</td>'
+            + CMP_COLS.map(function(c){
+                var v=mdata[c.key], pv=pm[c.key];
+                if (!v||!pv) return '<td class="td-num">—</td>';
+                var pct=((v-pv)/pv*100).toFixed(1), up=parseFloat(pct)>=0;
+                return '<td class="td-num" style="font-weight:600;color:'+(up?'var(--up)':'var(--down)')+'">'+( up?'▲':'▼')+Math.abs(pct)+'%</td>';
+              }).join('') + '</tr>';
+        }
+      });
+      tbl.querySelector('tbody').innerHTML = tbody;
+    }
+    renderCmpTable();
+    monSel.onchange = renderCmpTable;
+  })();
+}
+
+/* ============================================================
    PAGES 註冊表
    ============================================================ */
 function makeOnce(fn) {
@@ -3534,6 +3943,7 @@ const PAGES = {
         const rows    = await fetchGviz(SHEETS.annual);
         DB.cargoData  = buildCargoData(rows);
         renderHome();
+        ensureTradeData(); /* 背景預載進出口資料，讓使用者切換時無需等待 */
       } catch(err) {
         document.getElementById('page-home').innerHTML =
           '<div class="error-card">'
@@ -3587,7 +3997,22 @@ const PAGES = {
   },
   other: {
     getHash: function() { return 'other'; },
-    init: makeOnce(async function() { /* TODO */ }),
+    init: makeOnce(async function() {
+      showLoading(true);
+      try {
+        if (!DB.cargoData) {
+          var rows = await fetchGviz(SHEETS.annual);
+          DB.cargoData = buildCargoData(rows);
+        }
+        renderOaCurrentPanel();
+      } catch(err) {
+        document.getElementById('page-other').innerHTML =
+          '<div class="error-card"><div class="err-title">資料載入失敗</div>'
+          + '<div class="err-msg">'+(err.message||err)+'</div>'
+          + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 Sheet ID 正確無誤。</div>'
+          + '</div>';
+      } finally { showLoading(false); }
+    }),
   },
   airline: {
     getHash: function() { return 'airline'; },
