@@ -556,6 +556,21 @@ footer {
   background: var(--bg-warm);
 }
 
+.term-pies-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 600px) { .term-pies-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* 歷年趨勢折線圖：桌機選項置於折線圖左側（直接呈現），手機選項置於上方（下拉多選） */
+.trend-flex { display: flex; gap: 16px; align-items: stretch; }
+.trend-flex .trend-picker { flex: 0 0 172px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.trend-flex .trend-picker select { width: 100%; }
+.trend-flex .trend-picker select[multiple] { flex: 1 1 auto; min-height: 132px; }
+.trend-flex .trend-chart { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 900px) {
+  .trend-flex { flex-direction: column; gap: 10px; }
+  .trend-flex .trend-picker { flex: none; }
+  .trend-flex .trend-picker select[multiple] { flex: none; }
+}
+
 /* ============================================================
    RWD — 900px
    ============================================================ */
@@ -762,13 +777,13 @@ footer {
   <div class="grid-2">
     <div class="card">
       <div class="card-title" id="home-pie1-title">貨運類型比例</div>
-      <div class="chart-wrap" style="height:330px">
+      <div class="chart-wrap" style="height:300px">
         <canvas id="chart-home-pie1"></canvas>
       </div>
     </div>
     <div class="card">
       <div class="card-title" id="home-pie2-title">各機場貨量佔比</div>
-      <div style="display:flex;align-items:center;gap:16px;height:310px">
+      <div style="display:flex;align-items:center;gap:16px;height:300px">
         <div class="chart-wrap" style="height:100%;flex:0 0 58%;min-width:0">
           <canvas id="chart-home-pie2"></canvas>
         </div>
@@ -808,7 +823,7 @@ footer {
             <select id="ty-pie1-year" class="ctrl-sel"></select>
           </div>
         </div>
-        <div class="chart-wrap" style="height:260px"><canvas id="chart-ty-pie1"></canvas></div>
+        <div class="chart-wrap" style="height:300px"><canvas id="chart-ty-pie1"></canvas></div>
       </div>
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
@@ -818,7 +833,7 @@ footer {
             <select id="ty-pie2-year" class="ctrl-sel"></select>
           </div>
         </div>
-        <div class="chart-wrap" style="height:260px"><canvas id="chart-ty-pie2"></canvas></div>
+        <div class="chart-wrap" style="height:300px"><canvas id="chart-ty-pie2"></canvas></div>
       </div>
     </div>
     <div class="card">
@@ -873,16 +888,16 @@ footer {
           <select id="ty-term-pie-year" class="ctrl-sel"></select>
         </div>
       </div>
-      <div id="ty-term-pies-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px"></div>
+      <div id="ty-term-pies-grid" class="term-pies-grid"></div>
     </div>
 
     <!-- 5. 交叉比較：歷年折線圖 -->
     <div class="card">
       <div class="card-title">交叉比較：歷年折線圖</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span class="control-label">統計對象：</span>
-          <select id="ty-cross-entity-sel" style="min-width:130px"></select>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span class="control-label" style="white-space:nowrap">統計對象：</span>
+          <div id="ty-cross-entity-checks" style="display:flex;gap:6px 14px;flex-wrap:wrap"></div>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="control-label">統計項目：</span>
@@ -955,19 +970,23 @@ footer {
         <!-- Row 4: 歷年趨勢分析 — two independent charts -->
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 貨品類別（公噸）</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span class="control-label">選擇類別：</span>
-            <select id="imp-cross-cat-checks" style="flex:1;min-width:0;max-width:300px"></select>
+          <div class="trend-flex">
+            <div class="trend-picker">
+              <span class="control-label">選擇類別（可多選）：</span>
+              <select id="imp-cross-cat-checks" multiple size="5"></select>
+            </div>
+            <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-imp-cross-cat"></canvas></div>
           </div>
-          <div class="chart-wrap" style="height:300px"><canvas id="chart-imp-cross-cat"></canvas></div>
         </div>
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 來源國（公噸）</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span class="control-label">選擇來源國：</span>
-            <select id="imp-cross-country-checks" style="flex:1;min-width:0;max-width:300px"></select>
+          <div class="trend-flex">
+            <div class="trend-picker">
+              <span class="control-label">選擇來源國（可多選）：</span>
+              <select id="imp-cross-country-checks" multiple size="5"></select>
+            </div>
+            <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-imp-cross-country"></canvas></div>
           </div>
-          <div class="chart-wrap" style="height:300px"><canvas id="chart-imp-cross-country"></canvas></div>
         </div>
       </div>
     </div>
@@ -1025,19 +1044,23 @@ footer {
         <!-- Row 4: 歷年趨勢分析 — two independent charts -->
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 貨品類別（公噸）</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span class="control-label">選擇類別：</span>
-            <select id="exp-cross-cat-checks" style="flex:1;min-width:0;max-width:300px"></select>
+          <div class="trend-flex">
+            <div class="trend-picker">
+              <span class="control-label">選擇類別（可多選）：</span>
+              <select id="exp-cross-cat-checks" multiple size="5"></select>
+            </div>
+            <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-exp-cross-cat"></canvas></div>
           </div>
-          <div class="chart-wrap" style="height:300px"><canvas id="chart-exp-cross-cat"></canvas></div>
         </div>
         <div class="card">
           <div class="card-title">歷年趨勢分析 — 目的國（公噸）</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span class="control-label">選擇目的國：</span>
-            <select id="exp-cross-country-checks" style="flex:1;min-width:0;max-width:300px"></select>
+          <div class="trend-flex">
+            <div class="trend-picker">
+              <span class="control-label">選擇目的國（可多選）：</span>
+              <select id="exp-cross-country-checks" multiple size="5"></select>
+            </div>
+            <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-exp-cross-country"></canvas></div>
           </div>
-          <div class="chart-wrap" style="height:300px"><canvas id="chart-exp-cross-country"></canvas></div>
         </div>
       </div>
     </div>
@@ -1077,34 +1100,26 @@ footer {
           <div class="section-title" style="margin-bottom:0;font-size:17px;text-transform:none;letter-spacing:0">歷年趨勢交叉分析</div>
           <div class="card">
             <div class="card-title">單一進口貨品類別 × 歷年各進口國貨量（公噸）</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <span class="control-label">貨品類別：</span>
-              <select id="cross-imp-trend-cat-sel" style="min-width:140px"></select>
-            </div>
-            <div style="display:flex;gap:0">
-              <div style="flex:0 0 155px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:320px;padding-top:4px">
-                <div class="cross-section-label">選擇國家（可多選）</div>
-                <div id="cross-imp-trend-cat-ctries"></div>
+            <div class="trend-flex">
+              <div class="trend-picker">
+                <span class="control-label">貨品類別：</span>
+                <select id="cross-imp-trend-cat-sel"></select>
+                <span class="control-label" style="margin-top:6px">選擇國家（可多選）：</span>
+                <select id="cross-imp-trend-cat-ctries" multiple size="5"></select>
               </div>
-              <div style="flex:1;min-width:0;padding-left:16px">
-                <div class="chart-wrap" style="height:300px"><canvas id="chart-cross-imp-trend-cat"></canvas></div>
-              </div>
+              <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-cross-imp-trend-cat"></canvas></div>
             </div>
           </div>
           <div class="card">
             <div class="card-title">單一進口國 × 歷年各進口貨品類別貨量（公噸）</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <span class="control-label">進口國：</span>
-              <select id="cross-imp-trend-ctry-sel" style="min-width:140px"></select>
-            </div>
-            <div style="display:flex;gap:0">
-              <div style="flex:0 0 155px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:320px;padding-top:4px">
-                <div class="cross-section-label">選擇類別（可多選）</div>
-                <div id="cross-imp-trend-ctry-cats"></div>
+            <div class="trend-flex">
+              <div class="trend-picker">
+                <span class="control-label">進口國：</span>
+                <select id="cross-imp-trend-ctry-sel"></select>
+                <span class="control-label" style="margin-top:6px">選擇類別（可多選）：</span>
+                <select id="cross-imp-trend-ctry-cats" multiple size="5"></select>
               </div>
-              <div style="flex:1;min-width:0;padding-left:16px">
-                <div class="chart-wrap" style="height:300px"><canvas id="chart-cross-imp-trend-ctry"></canvas></div>
-              </div>
+              <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-cross-imp-trend-ctry"></canvas></div>
             </div>
           </div>
         </div>
@@ -1137,34 +1152,26 @@ footer {
           <div class="section-title" style="margin-bottom:0;font-size:17px;text-transform:none;letter-spacing:0">歷年趨勢交叉分析</div>
           <div class="card">
             <div class="card-title">單一出口貨品類別 × 歷年各出口國貨量（公噸）</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <span class="control-label">貨品類別：</span>
-              <select id="cross-exp-trend-cat-sel" style="min-width:140px"></select>
-            </div>
-            <div style="display:flex;gap:0">
-              <div style="flex:0 0 155px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:320px;padding-top:4px">
-                <div class="cross-section-label">選擇國家（可多選）</div>
-                <div id="cross-exp-trend-cat-ctries"></div>
+            <div class="trend-flex">
+              <div class="trend-picker">
+                <span class="control-label">貨品類別：</span>
+                <select id="cross-exp-trend-cat-sel"></select>
+                <span class="control-label" style="margin-top:6px">選擇國家（可多選）：</span>
+                <select id="cross-exp-trend-cat-ctries" multiple size="5"></select>
               </div>
-              <div style="flex:1;min-width:0;padding-left:16px">
-                <div class="chart-wrap" style="height:300px"><canvas id="chart-cross-exp-trend-cat"></canvas></div>
-              </div>
+              <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-cross-exp-trend-cat"></canvas></div>
             </div>
           </div>
           <div class="card">
             <div class="card-title">單一出口國 × 歷年各出口貨品類別貨量（公噸）</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <span class="control-label">出口國：</span>
-              <select id="cross-exp-trend-ctry-sel" style="min-width:140px"></select>
-            </div>
-            <div style="display:flex;gap:0">
-              <div style="flex:0 0 155px;border-right:1px solid var(--border);padding-right:12px;overflow-y:auto;max-height:320px;padding-top:4px">
-                <div class="cross-section-label">選擇類別（可多選）</div>
-                <div id="cross-exp-trend-ctry-cats"></div>
+            <div class="trend-flex">
+              <div class="trend-picker">
+                <span class="control-label">出口國：</span>
+                <select id="cross-exp-trend-ctry-sel"></select>
+                <span class="control-label" style="margin-top:6px">選擇類別（可多選）：</span>
+                <select id="cross-exp-trend-ctry-cats" multiple size="5"></select>
               </div>
-              <div style="flex:1;min-width:0;padding-left:16px">
-                <div class="chart-wrap" style="height:300px"><canvas id="chart-cross-exp-trend-ctry"></canvas></div>
-              </div>
+              <div class="trend-chart chart-wrap" style="height:300px"><canvas id="chart-cross-exp-trend-ctry"></canvas></div>
             </div>
           </div>
         </div>
@@ -1444,10 +1451,11 @@ function showLoading(on) {
 /* ============================================================
    gviz JSONP 載入（支援 file:// + http://，無 CORS 問題）
    ============================================================ */
+var _gvizCbSeq = 0;
 function _gvizJsonp(sheetId, tab) {
   return new Promise(function(resolve, reject) {
-    /* 唯一的全域 callback 名稱 */
-    var cbName = '_gvizCb' + (Date.now() % 1e9 | 0);
+    /* 唯一的全域 callback 名稱：加上遞增序號，避免同毫秒並行請求（如進口/出口同時抓取）撞名 */
+    var cbName = '_gvizCb' + Date.now() + '_' + (++_gvizCbSeq);
     var script = document.createElement('script');
 
     window[cbName] = function(json) {
@@ -1482,6 +1490,16 @@ function _gvizJsonp(sheetId, tab) {
 /* ============================================================
    gviz 抓取入口 + localStorage 日快取
    ============================================================ */
+/* 清除非今日的舊快取，避免長期累積撐爆 localStorage 配額（allDates=true 時連今日也清）*/
+function _pruneGvizCache(allDates) {
+  var today = todayStr();
+  Object.keys(localStorage).forEach(function(k) {
+    if (k.indexOf('aviation_') === 0 && (allDates || k.indexOf('_' + today) === -1)) {
+      try { localStorage.removeItem(k); } catch(e) {}
+    }
+  });
+}
+
 async function fetchGviz(sheetId, tab) {
   tab = tab || '長格式資料';
   if (!sheetId) throw new Error('Sheet ID 未設定，請確認 config.js');
@@ -1493,7 +1511,14 @@ async function fetchGviz(sheetId, tab) {
   }
 
   const rows = await _gvizJsonp(sheetId, tab);
-  try { localStorage.setItem(cacheKey, JSON.stringify(rows)); } catch(e) { /* storage full */ }
+  const payload = JSON.stringify(rows);
+  try {
+    _pruneGvizCache();                       /* 先清掉舊日期快取 */
+    localStorage.setItem(cacheKey, payload);
+  } catch(e) {
+    /* 配額不足：清掉所有 aviation 快取後再試一次 */
+    try { _pruneGvizCache(true); localStorage.setItem(cacheKey, payload); } catch(e2) { /* 仍失敗則放棄快取 */ }
+  }
   return rows;
 }
 
@@ -1562,6 +1587,22 @@ const TOOLTIP = {
   titleFont: { size: 12 },
   bodyFont: { size: 12 },
 };
+
+/* 甜甜圈圖統一資料標籤：一律標於環外、深色、格式「名稱 X萬噸 (百分比)」，
+   佔比 < minFrac（預設 3%）的小切片不顯示標籤以避免重疊。搭配 layout.padding 預留外側空間。*/
+function donutOutsideLabels(total, minFrac) {
+  minFrac = (minFrac == null) ? 0.03 : minFrac;
+  return {
+    anchor: 'end', align: 'end', offset: 8, clip: false,
+    color: '#2a3a4a', font: { size: 11, weight: '700' }, textAlign: 'center',
+    display: function(ctx) { var v = ctx.dataset.data[ctx.dataIndex]; return total > 0 && v / total >= minFrac; },
+    formatter: function(value, ctx) {
+      if (!total) return '';
+      var p = (value / total * 100).toFixed(1);
+      return ctx.chart.data.labels[ctx.dataIndex] + '\n' + Math.round(value / 10000) + '萬噸 (' + p + '%)';
+    },
+  };
+}
 
 /* ============================================================
    HOME PAGE — KPI 卡
@@ -1849,20 +1890,7 @@ function renderHomePies() {
             }
           }
         },
-        datalabels: {
-          anchor: 'end',
-          align: 'end',
-          offset: 8,
-          color: '#2a3a4a',
-          font: { size: 10, weight: '700' },
-          textAlign: 'center',
-          formatter: function(value, ctx) {
-            if (!total || value / total < 0.04) return '';
-            const p = (value / total * 100).toFixed(1);
-            return ctx.chart.data.labels[ctx.dataIndex]
-              + '\n' + Math.round(value / 10000) + '萬噸 (' + p + '%)';
-          },
-        }
+        datalabels: donutOutsideLabels(total)
       }
     }
   });
@@ -1894,6 +1922,7 @@ function renderHomePies() {
       responsive: true,
       maintainAspectRatio: false,
       cutout: '65%',
+      layout: { padding: 50 },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -1905,17 +1934,7 @@ function renderHomePies() {
             }
           }
         },
-        datalabels: {
-          color: '#fff',
-          font: { size: 11, weight: '700' },
-          textAlign: 'center',
-          formatter: function(value, ctx) {
-            if (!total2 || value / total2 < 0.08) return '';
-            const p = (value / total2 * 100).toFixed(1);
-            return ctx.chart.data.labels[ctx.dataIndex]
-              + '\n' + Math.round(value / 10000) + '萬噸\n(' + p + '%)';
-          },
-        }
+        datalabels: donutOutsideLabels(total2)
       }
     }
   });
@@ -2079,34 +2098,11 @@ function renderTaoyuanOverview() {
     var tot = vals.reduce(function(a, b) { return a + b; }, 0);
     return {
       responsive: true, maintainAspectRatio: false,
-      layout: { padding: 24 },
+      cutout: '65%',
+      layout: { padding: 50 },
       plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12, color: '#5A7A8A', padding: 10, font: { size: 11 } } },
-        datalabels: {
-          display: function(ctx) { var v = ctx.dataset.data[ctx.dataIndex]; return tot > 0 && v / tot > 0.03; },
-          color: function(ctx) {
-            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
-            return lbl.length > 4 ? '#333' : '#fff';
-          },
-          font: { size: 11, weight: '700' },
-          textAlign: 'center', clip: false,
-          anchor: function(ctx) {
-            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
-            return lbl.length > 4 ? 'end' : 'center';
-          },
-          align: function(ctx) {
-            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
-            return lbl.length > 4 ? 'end' : 'center';
-          },
-          offset: function(ctx) {
-            var lbl = ctx.chart.data.labels[ctx.dataIndex] || '';
-            return lbl.length > 4 ? 4 : 0;
-          },
-          formatter: function(v, ctx) {
-            if (!tot) return '';
-            return labels[ctx.dataIndex] + '\n' + (v / tot * 100).toFixed(1) + '%';
-          },
-        },
+        legend: { display: false },
+        datalabels: donutOutsideLabels(tot),
         tooltip: Object.assign({}, TOOLTIP, {
           callbacks: {
             label: function(ctx) {
@@ -2128,7 +2124,7 @@ function renderTaoyuanOverview() {
     var colors = [CLR.flow['進口合計'], CLR.flow['出口合計'], CLR.flow['轉口合計']];
     CHARTS['chart-ty-pie1'] = new Chart(getOrDestroy('chart-ty-pie1'), {
       type: 'doughnut', plugins: [ChartDataLabels],
-      data: { labels: labels, datasets: [{ data: vals, backgroundColor: colors, cutout: '62%' }] },
+      data: { labels: labels, datasets: [{ data: vals, backgroundColor: colors, cutout: '65%' }] },
       options: doughnutOpts(labels, vals, colors),
     });
   }
@@ -2148,7 +2144,7 @@ function renderTaoyuanOverview() {
     ];
     CHARTS['chart-ty-pie2'] = new Chart(getOrDestroy('chart-ty-pie2'), {
       type: 'doughnut', plugins: [ChartDataLabels],
-      data: { labels: labels, datasets: [{ data: vals, backgroundColor: CLR.cargoType, cutout: '62%' }] },
+      data: { labels: labels, datasets: [{ data: vals, backgroundColor: CLR.cargoType, cutout: '65%' }] },
       options: doughnutOpts(labels, vals, CLR.cargoType),
     });
   }
@@ -2403,8 +2399,11 @@ function renderTaoyuanTerminals() {
             legend: { display: false },
             datalabels: {
               display: function(ctx2) { var v = ctx2.dataset.data[ctx2.dataIndex]; return tot > 0 && v / tot > 0.02; },
-              color: '#fff', font: { size: 10, weight: '700' },
-              textAlign: 'center',
+              color: function(ctx2) { var l = labels[ctx2.dataIndex] || ''; return l.length > 3 ? '#333' : '#fff'; },
+              font: { size: 10, weight: '700' }, textAlign: 'center', clip: false,
+              anchor: function(ctx2) { var l = labels[ctx2.dataIndex] || ''; return l.length > 3 ? 'end' : 'center'; },
+              align: function(ctx2) { var l = labels[ctx2.dataIndex] || ''; return l.length > 3 ? 'end' : 'center'; },
+              offset: function(ctx2) { var l = labels[ctx2.dataIndex] || ''; return l.length > 3 ? 4 : 0; },
               formatter: function(v, ctx2) {
                 if (!tot) return '';
                 return labels[ctx2.dataIndex] + '\n' + (v / tot * 100).toFixed(0) + '%';
@@ -2450,26 +2449,29 @@ function renderTaoyuanTerminals() {
     return d2[metricKey] || null;
   }
 
-  /* 建立交叉比較下拉選單 */
-  var crossEntitySel = document.getElementById('ty-cross-entity-sel');
+  /* 建立交叉比較統計對象（checkbox pill）和統計項目選單 */
+  var crossEntityEl  = document.getElementById('ty-cross-entity-checks');
   var crossMetricSel = document.getElementById('ty-cross-metric-sel');
 
-  /* 統計對象：第一個選項為「所有貨運站」，其餘為個別貨運站 */
-  crossEntitySel.innerHTML = '<option value="ALL">所有貨運站</option>'
-    + TERMINAL_ENTITIES.map(function(t) {
-        return '<option value="' + t.key + '">' + t.label + '</option>';
-      }).join('');
+  /* 統計對象：inline checkbox pill，全部預設勾選 */
+  crossEntityEl.innerHTML = TERMINAL_ENTITIES.map(function(t) {
+    return '<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;white-space:nowrap">'
+      + '<input type="checkbox" data-key="' + t.key + '" checked>'
+      + '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + t.clr + ';flex-shrink:0"></span>'
+      + t.label + '</label>';
+  }).join('');
 
   crossMetricSel.innerHTML = CROSS_METRICS.map(function(m, i) {
     return '<option value="' + m.key + '"' + (i === 0 ? ' selected' : '') + '>' + m.label + '</option>';
   }).join('');
 
   function renderCrossChart() {
-    var entityVal = crossEntitySel.value;
+    var selectedKeys = new Set(
+      Array.from(crossEntityEl.querySelectorAll('input[type=checkbox]:checked'))
+        .map(function(cb) { return cb.dataset.key; })
+    );
     var metricKey = crossMetricSel.value || '總計貨運量';
-    var entities = entityVal === 'ALL'
-      ? TERMINAL_ENTITIES
-      : TERMINAL_ENTITIES.filter(function(t) { return t.key === entityVal; });
+    var entities = TERMINAL_ENTITIES.filter(function(t) { return selectedKeys.has(t.key); });
     var datasets = entities.map(function(t) {
       return {
         label: t.label,
@@ -2498,7 +2500,7 @@ function renderTaoyuanTerminals() {
     });
   }
 
-  crossEntitySel.addEventListener('change', renderCrossChart);
+  crossEntityEl.addEventListener('change', renderCrossChart);
   crossMetricSel.addEventListener('change', renderCrossChart);
 
   renderCrossChart();
@@ -2509,16 +2511,24 @@ function renderTaoyuanTerminals() {
    ============================================================ */
 function buildTradeData(rows, type) {
   /* type: 'imp' or 'exp' */
-  if (!rows || !rows.length) return { years: [], byCategory: {}, byCountry: {}, total: {} };
-  var s     = rows[0];
-  var cYear = TRADE_COL.year in s ? TRADE_COL.year : Object.keys(s)[0];
-  var cCat  = TRADE_COL.cat  in s ? TRADE_COL.cat  : null;
+  var empty = { years: [], byCategory: {}, byCountry: {}, total: {}, catByCountry: {}, countryByCat: {} };
+  if (!rows || !rows.length) return empty;
+  var s = rows[0];
+  /* 欄位名稱正規化：去除空白 + 全形括弧轉半形，容忍試算表細微差異 */
+  function normK(k) { return k.trim().replace(/（/g, '(').replace(/）/g, ')'); }
+  function findCol(colName) {
+    if (colName in s) return colName;
+    var t = normK(colName);
+    return Object.keys(s).find(function(k) { return normK(k) === t; }) || null;
+  }
+  var cYear = findCol(TRADE_COL.year) || Object.keys(s)[0];
+  var cCat  = findCol(TRADE_COL.cat);
   var cCtryKey = type === 'imp' ? 'imp_country' : 'exp_country';
   var cValKey  = type === 'imp' ? 'imp_val'     : 'exp_val';
-  var cCtry = TRADE_COL[cCtryKey] in s ? TRADE_COL[cCtryKey] : null;
-  var cVal  = TRADE_COL[cValKey]  in s ? TRADE_COL[cValKey]  : null;
-  console.log('[Aviation] Trade(' + type + ') cols:', { cYear, cCat, cCtry, cVal }, '| sample:', s);
-  if (!cVal) return { years: [], byCategory: {}, byCountry: {}, total: {} };
+  var cCtry = findCol(TRADE_COL[cCtryKey]);
+  var cVal  = findCol(TRADE_COL[cValKey]);
+  console.log('[Aviation] Trade(' + type + ') cols:', { cYear, cCat, cCtry, cVal }, '| keys:', Object.keys(s).join(', '));
+  if (!cVal) return empty;
 
   var byCategory = {}, byCountry = {}, total = {}, yearsSet = new Set();
   var catByCountry = {}, countryByCat = {};
@@ -2552,22 +2562,25 @@ function buildTradeData(rows, type) {
 }
 
 var _tradeLoaded  = false;
-var _tradeLoading = false;
+var _tradePromise = null;
 
-async function ensureTradeData() {
-  if (_tradeLoaded) return;
-  if (_tradeLoading) {
-    return new Promise(function(resolve) { setTimeout(resolve, 100); });
+function ensureTradeData() {
+  if (_tradeLoaded) {
+    /* 若 exp 資料為空（上次欄位解析失敗），重設 flag 讓本次重新解析 */
+    if (!DB.expData || !DB.expData.years || !DB.expData.years.length) _tradeLoaded = false;
+    else return Promise.resolve();
   }
-  _tradeLoading = true;
-  try {
-    var results    = await Promise.all([fetchGviz(SHEETS.imp_annual), fetchGviz(SHEETS.exp_annual)]);
-    DB.impData     = buildTradeData(results[0], 'imp');
-    DB.expData     = buildTradeData(results[1], 'exp');
-    _tradeLoaded   = true;
-  } finally {
-    _tradeLoading  = false;
-  }
+  if (_tradePromise) return _tradePromise;
+  _tradePromise = Promise.all([fetchGviz(SHEETS.imp_annual), fetchGviz(SHEETS.exp_annual)])
+    .then(function(results) {
+      DB.impData   = buildTradeData(results[0], 'imp');
+      DB.expData   = buildTradeData(results[1], 'exp');
+      _tradeLoaded = true;
+    })
+    .finally(function() {
+      _tradePromise = null;
+    });
+  return _tradePromise;
 }
 
 /* ============================================================
@@ -2795,25 +2808,29 @@ function renderTradeSubtab(type, data) {
   var allCtries = Object.entries(byYrCtry[latestY] || {}).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];});
 
   function chkHtml(items, defaultN) {
-    /* Now renders <option> elements for a <select> dropdown */
+    /* Renders <option> elements for a <select multiple> */
     return items.map(function(item, i) {
       return '<option value="' + item.replace(/"/g,'&quot;') + '"'
-        + (i === 0 ? ' selected' : '') + '>'
+        + (i < defaultN ? ' selected' : '') + '>'
         + item + '</option>';
     }).join('');
   }
 
   function makeTrendLine(chartId, selEl, getDataFn) {
     function render() {
+      var selectedItems = Array.from(selEl.options)
+        .filter(function(o) { return o.selected; })
+        .map(function(o) { return o.value; });
       var datasets = [], ci = 0;
-      var selectedVal = selEl.value;
-      if (!selectedVal) { getOrDestroy(chartId); return; }
-      var clr = CLR.seq[ci++ % CLR.seq.length];
-      datasets.push({
-        label: selectedVal,
-        data: years.map(function(yr) { return getDataFn(yr, selectedVal); }),
-        borderColor: clr, backgroundColor: clr + '22',
-        tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5,
+      if (!selectedItems.length) { getOrDestroy(chartId); return; }
+      selectedItems.forEach(function(item) {
+        var clr = CLR.seq[ci++ % CLR.seq.length];
+        datasets.push({
+          label: item,
+          data: years.map(function(yr) { return getDataFn(yr, item); }),
+          borderColor: clr, backgroundColor: clr + '22',
+          tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5,
+        });
       });
       CHARTS[chartId] = new Chart(getOrDestroy(chartId), {
         type: 'line',
@@ -2937,19 +2954,15 @@ function renderTradeCross() {
       years.forEach(function(yr){ Object.entries((catByCountry[yr]||{})[cat]||{}).forEach(function(e){ totals[e[0]]=(totals[e[0]]||0)+e[1]; }); });
       var sorted = Object.entries(totals).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];});
       trendCtryChecks.innerHTML = sorted.map(function(c,i){
-        return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:2px 0">'
-          +'<input type="checkbox" data-item="'+c.replace(/"/g,'&quot;')+'"'+(i<5?' checked':'')+'>'
-          +'<span style="font-size:11px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px" title="'+c+'">'+c+'</span>'
-          +'</label>';
+        return '<option value="'+c.replace(/"/g,'&quot;')+'"'+(i<5?' selected':'')+'>'+c+'</option>';
       }).join('');
-      trendCtryChecks.addEventListener('change', renderTrendCatChart);
     }
 
     function renderTrendCatChart() {
       var cat = trendCatSel.value;
       var datasets = [], ci = 0;
-      Array.from(trendCtryChecks.querySelectorAll('input:checked')).forEach(function(el){
-        var ctry = el.dataset.item, clr = CLR.seq[ci++ % CLR.seq.length];
+      Array.from(trendCtryChecks.options).filter(function(o){return o.selected;}).forEach(function(o){
+        var ctry = o.value, clr = CLR.seq[ci++ % CLR.seq.length];
         datasets.push({ label: ctry, data: years.map(function(yr){ return ((catByCountry[yr]||{})[cat]||{})[ctry]||null; }),
           borderColor: clr, backgroundColor: clr+'22', tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5 });
       });
@@ -2964,6 +2977,7 @@ function renderTradeCross() {
     }
 
     trendCatSel.addEventListener('change', function(){ buildCtryChecks(trendCatSel.value); renderTrendCatChart(); });
+    trendCtryChecks.addEventListener('change', renderTrendCatChart);
     buildCtryChecks(allCats[0] || '');
     renderTrendCatChart();
 
@@ -2977,19 +2991,15 @@ function renderTradeCross() {
       years.forEach(function(yr){ Object.entries((countryByCat[yr]||{})[ctry]||{}).forEach(function(e){ totals[e[0]]=(totals[e[0]]||0)+e[1]; }); });
       var sorted = Object.entries(totals).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0];});
       trendCatChecks.innerHTML = sorted.map(function(c,i){
-        return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:2px 0">'
-          +'<input type="checkbox" data-item="'+c.replace(/"/g,'&quot;')+'"'+(i<5?' checked':'')+'>'
-          +'<span style="font-size:11px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px" title="'+c+'">'+c+'</span>'
-          +'</label>';
+        return '<option value="'+c.replace(/"/g,'&quot;')+'"'+(i<5?' selected':'')+'>'+c+'</option>';
       }).join('');
-      trendCatChecks.addEventListener('change', renderTrendCtryChart);
     }
 
     function renderTrendCtryChart() {
       var ctry = trendCtrySel.value;
       var datasets = [], ci = 0;
-      Array.from(trendCatChecks.querySelectorAll('input:checked')).forEach(function(el){
-        var cat = el.dataset.item, clr = CLR.seq[ci++ % CLR.seq.length];
+      Array.from(trendCatChecks.options).filter(function(o){return o.selected;}).forEach(function(o){
+        var cat = o.value, clr = CLR.seq[ci++ % CLR.seq.length];
         datasets.push({ label: cat, data: years.map(function(yr){ return ((countryByCat[yr]||{})[ctry]||{})[cat]||null; }),
           borderColor: clr, backgroundColor: clr+'22', tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5 });
       });
@@ -3004,6 +3014,7 @@ function renderTradeCross() {
     }
 
     trendCtrySel.addEventListener('change', function(){ buildCatChecks(trendCtrySel.value); renderTrendCtryChart(); });
+    trendCatChecks.addEventListener('change', renderTrendCtryChart);
     buildCatChecks(allCtries[0] || '');
     renderTrendCtryChart();
   }
@@ -4122,6 +4133,9 @@ document.querySelectorAll('.taoyuan-subnav button').forEach(function(btn) {
 
 window.addEventListener('DOMContentLoaded', function() {
   switchPage(parseHash());
+  /* 應用一啟動就在背景並行預載「進出口細項」資料（無論從哪一頁進入），
+     使用者切換到該分頁時通常已載入完成，無需再等待。*/
+  ensureTradeData().catch(function() { /* 預載失敗時靜默；使用者實際點入分頁會再重試並顯示錯誤 */ });
 });
 
 window.addEventListener('hashchange', function() {
