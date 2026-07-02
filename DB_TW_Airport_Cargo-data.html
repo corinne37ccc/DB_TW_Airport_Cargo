@@ -732,9 +732,10 @@ footer {
 <nav class="main-nav" id="main-nav">
   <button data-page="home" class="active">全國總覽</button>
   <button data-page="taoyuan">桃園機場貨量分析</button>
-  <button data-page="other">其他國際機場貨量分析</button>
-  <button data-page="airline">國籍航空公司貨量分析</button>
+  <button data-page="ty-monthly">桃園機場貨運月報</button>
   <button data-page="tpe-ftz">桃園空港自貿統計</button>
+  <button data-page="airline">國籍航空公司貨量分析</button>
+  <button data-page="other">其他國際機場貨量分析</button>
 </nav>
 
 <!-- ==================== TAOYUAN SUB-NAV ==================== -->
@@ -742,7 +743,6 @@ footer {
   <button data-ty="ty-overview" class="active">貨量總覽</button>
   <button data-ty="ty-terminals">貨運站比較</button>
   <button data-ty="ty-trade">進出口細項</button>
-  <button data-ty="ty-monthly">貨運月報</button>
 </nav>
 
 <!-- ================================================================
@@ -1202,11 +1202,24 @@ footer {
     </div>
   </div>
 
-  <!-- ── 貨運月報 ── -->
-  <div id="ty-monthly" class="ty-panel" style="display:none;flex-direction:column;gap:20px">
 
-    <!-- 標題 -->
-    <div id="ty-monthly-heading" style="font-size:18px;font-weight:700;color:var(--primary-dark);border-left:4px solid var(--accent-rust);padding-left:12px;letter-spacing:.01em"></div>
+</div><!-- /page-taoyuan -->
+
+<!-- ================================================================
+     PAGE: 桃園機場貨運月報（獨立主頁籤）
+     ================================================================ -->
+<div id="page-ty-monthly" class="page">
+
+    <!-- 標題 + 重新整理資料 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px">
+      <div id="ty-monthly-heading" style="font-size:18px;font-weight:700;color:var(--primary-dark);border-left:4px solid var(--accent-rust);padding-left:12px;letter-spacing:.01em"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span id="ty-mon-refresh-time" style="font-size:11.5px;color:var(--text-3)"></span>
+        <button id="ty-mon-refresh-btn" type="button" class="metric-btn" onclick="refreshTaoyuanMonthly()" style="display:inline-flex;align-items:center;gap:5px" title="清除快取，重新向 Google Sheet 抓取最新月報資料">
+          <span id="ty-mon-refresh-icon" style="display:inline-block;line-height:1">↻</span>重新整理資料
+        </button>
+      </div>
+    </div>
 
     <!-- 當月月報重點 KPI -->
     <div class="section-title" id="ty-mon-kpi-title" style="text-transform:none;letter-spacing:0;font-size:14px;margin-bottom:-8px">月報重點</div>
@@ -1275,9 +1288,7 @@ footer {
       <div class="chart-wrap" style="height:300px"><canvas id="chart-ty-mon-airline"></canvas></div>
     </div>
 
-  </div><!-- /ty-monthly -->
-
-</div><!-- /page-taoyuan -->
+</div><!-- /page-ty-monthly -->
 
 
 <!-- ================================================================
@@ -3616,9 +3627,11 @@ function renderTaoyuanMonthly() {
       toEl.value   = alMonthList[alMonthList.length - 1].key;
     }
 
+    /* 預設勾選中華、長榮、星宇（不論排序位置）*/
+    var AL_MON_DEFAULT = ['中華', '長榮', '星宇'];
     checksEl.innerHTML = alKeys.map(function(k, i) {
       var clr = CLR.airline[k] || CLR.seq[i % CLR.seq.length];
-      var on  = i < 3;
+      var on  = AL_MON_DEFAULT.indexOf(k) >= 0;
       return '<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer">'
         + '<input type="checkbox" data-key="' + k + '" ' + (on ? 'checked' : '') + '>'
         + '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + clr + ';flex-shrink:0"></span>'
@@ -3710,7 +3723,7 @@ async function renderTaoyuanTrade() {
 async function _renderTaoyuanMonthlyAsync() {
   try {
     showLoading(true);
-    var panel = document.getElementById('ty-monthly');
+    var panel = document.getElementById('page-ty-monthly');
     if (!DB.monthlyData) {
       var rows = await fetchGviz(SHEETS.monthly);
       DB.monthlyData = buildMonthlyData(rows);
@@ -3731,11 +3744,38 @@ async function _renderTaoyuanMonthlyAsync() {
     errEl.innerHTML = '<div class="err-title">月報資料載入失敗</div>'
       + '<div class="err-msg">' + (err.message || err) + '</div>'
       + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 monthly / al_monthly Sheet ID 正確。</div>';
-    var panel = document.getElementById('ty-monthly');
+    var panel = document.getElementById('page-ty-monthly');
     if (panel) panel.insertBefore(errEl, panel.firstChild);
   } finally {
     showLoading(false);
   }
+}
+
+/* 手動「重新整理資料」：只清「貨運月報」用到的 monthly / al_monthly 兩張表的當日快取，
+   不影響其他分頁的快取，避免使用者只是想更新月報卻要等其他頁面重抓。*/
+var _tyMonRefreshing = false;
+function refreshTaoyuanMonthly() {
+  if (_tyMonRefreshing) return;
+  _tyMonRefreshing = true;
+  var btn  = document.getElementById('ty-mon-refresh-btn');
+  var icon = document.getElementById('ty-mon-refresh-icon');
+  if (btn)  btn.disabled = true;
+  if (icon) icon.style.animation = 'spin .7s linear infinite';
+
+  localStorage.removeItem('aviation_' + SHEETS.monthly + '_' + todayStr());
+  localStorage.removeItem('aviation_' + SHEETS.al_monthly + '_' + todayStr());
+  DB.monthlyData   = null;
+  DB.alMonthlyData = null;
+
+  _renderTaoyuanMonthlyAsync().finally(function() {
+    if (btn)  btn.disabled = false;
+    if (icon) icon.style.animation = '';
+    var timeEl = document.getElementById('ty-mon-refresh-time');
+    if (timeEl) {
+      timeEl.textContent = '上次更新：' + new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    _tyMonRefreshing = false;
+  });
 }
 
 /* ============================================================
@@ -4792,17 +4832,42 @@ const PAGES = {
           renderTaoyuanTrade().then(function() {
             _tyDone.trade = true; _tyDone.tradeInProgress = false;
           }).catch(function() { _tyDone.tradeInProgress = false; });
-        } else if (_tyActive === 'ty-monthly' && !_tyDone.monthly && !_tyDone.monthlyInProgress) {
-          _tyDone.monthlyInProgress = true;
-          _renderTaoyuanMonthlyAsync().then(function() {
-            _tyDone.monthly = true; _tyDone.monthlyInProgress = false;
-          }).catch(function() { _tyDone.monthlyInProgress = false; });
         }
       } catch(err) {
         document.getElementById('page-taoyuan').innerHTML =
           '<div class="error-card"><div class="err-title">資料載入失敗</div>'
           + '<div class="err-msg">' + (err.message || err) + '</div>'
           + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 Sheet ID 正確無誤。</div>'
+          + '</div>';
+      } finally {
+        showLoading(false);
+      }
+    }),
+  },
+  'ty-monthly': {
+    getHash: function() { return 'ty-monthly'; },
+    init: makeOnce(async function() {
+      showLoading(true);
+      try {
+        if (!DB.monthlyData) {
+          var rows = await fetchGviz(SHEETS.monthly);
+          DB.monthlyData = buildMonthlyData(rows);
+        }
+        if (!DB.alMonthlyData) {
+          try {
+            var alRows = await fetchGviz(SHEETS.al_monthly);
+            DB.alMonthlyData = buildAirlineMonthlyData(alRows);
+          } catch(e) {
+            DB.alMonthlyData = {};
+          }
+        }
+        renderTaoyuanMonthly();
+      } catch(err) {
+        console.error('[Aviation] Monthly render error:', err);
+        document.getElementById('page-ty-monthly').innerHTML =
+          '<div class="error-card"><div class="err-title">月報資料載入失敗</div>'
+          + '<div class="err-msg">' + (err.message || err) + '</div>'
+          + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 monthly / al_monthly Sheet ID 正確。</div>'
           + '</div>';
       } finally {
         showLoading(false);
@@ -4906,7 +4971,7 @@ function switchPage(pageId, silent) {
    桃園 sub-nav
    ============================================================ */
 var _tyActive  = 'ty-overview';
-var _tyDone    = { overview: false, terminals: false, trade: false, tradeInProgress: false, monthly: false, monthlyInProgress: false };
+var _tyDone    = { overview: false, terminals: false, trade: false, tradeInProgress: false };
 
 function switchTaoyuanPanel(panelId, btn) {
   showTyPanel(panelId);
@@ -4929,14 +4994,6 @@ function switchTaoyuanPanel(panelId, btn) {
     }).catch(function() {
       _tyDone.tradeInProgress = false;
     });
-  } else if (panelId === 'ty-monthly' && !_tyDone.monthly && !_tyDone.monthlyInProgress) {
-    _tyDone.monthlyInProgress = true;
-    _renderTaoyuanMonthlyAsync().then(function() {
-      _tyDone.monthly = true;
-      _tyDone.monthlyInProgress = false;
-    }).catch(function() {
-      _tyDone.monthlyInProgress = false;
-    });
   }
 }
 
@@ -4945,8 +5002,8 @@ function switchTaoyuanPanel(panelId, btn) {
    路徑：#<page>[/<sub>[/<subsub>]]
    例：#taoyuan/trade/exp（進出口細項→出口）、#other/tsa（松山機場）
    ============================================================ */
-var TY_PANEL_SEG = { 'ty-overview': 'overview', 'ty-terminals': 'terminals', 'ty-trade': 'trade', 'ty-monthly': 'monthly' };
-var TY_SEG_PANEL = { 'overview': 'ty-overview', 'terminals': 'ty-terminals', 'trade': 'ty-trade', 'monthly': 'ty-monthly' };
+var TY_PANEL_SEG = { 'ty-overview': 'overview', 'ty-terminals': 'terminals', 'ty-trade': 'trade' };
+var TY_SEG_PANEL = { 'overview': 'ty-overview', 'terminals': 'ty-terminals', 'trade': 'ty-trade' };
 var TRADE_SUB_SEG = { 'sub-trade-imp': 'imp', 'sub-trade-exp': 'exp', 'sub-trade-cross': 'cross' };
 var TRADE_SEG_SUB = { 'imp': 'sub-trade-imp', 'exp': 'sub-trade-exp', 'cross': 'sub-trade-cross' };
 var OA_APS = ['khh', 'tsa', 'rmq'];
