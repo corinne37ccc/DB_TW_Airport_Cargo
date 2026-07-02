@@ -456,6 +456,15 @@ select:focus { border-color: var(--primary); }
   padding-left: 10px;
   margin-bottom: 12px;
 }
+/* 大標題（與頁面主標「桃園空港自由貿易港區統計」同大小）*/
+.ftz-h {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  border-left: 4px solid var(--accent-rust);
+  padding-left: 12px;
+  letter-spacing: .01em;
+}
 
 /* ============================================================
    Sub-tab bar (貨量總體 / 進出口 etc.)
@@ -558,6 +567,20 @@ footer {
 
 .term-pies-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 600px) { .term-pies-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.al-donut-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .al-donut-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .al-donut-grid { grid-template-columns: 1fr; } }
+
+/* 自貿交叉分析：桌機選項置左、手機選項置上 */
+.ftz-cross-flex { display: flex; gap: 16px; align-items: stretch; }
+.ftz-cross-flex .ftz-cross-picker { flex: 0 0 210px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ftz-cross-flex .ftz-cross-picker select { width: 100%; }
+.ftz-cross-flex .ftz-cross-chart { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 900px) {
+  .ftz-cross-flex { flex-direction: column; gap: 10px; }
+  .ftz-cross-flex .ftz-cross-picker { flex: none; }
+}
 
 /* 歷年趨勢折線圖：桌機選項置於折線圖左側（直接呈現），手機選項置於上方（下拉多選） */
 .trend-flex { display: flex; gap: 16px; align-items: stretch; }
@@ -1298,14 +1321,163 @@ footer {
      PAGE: 國籍航空公司貨量分析
      ================================================================ -->
 <div id="page-airline" class="page">
-  <div class="wip-placeholder">國籍航空公司貨量分析（施工中）</div>
+  <div style="font-size:18px;font-weight:700;color:var(--primary-dark);border-left:4px solid var(--accent-rust);padding-left:12px;letter-spacing:.01em">國籍航空公司貨量分析</div>
+
+  <!-- 1. 歷年總貨量折線圖 -->
+  <div class="card">
+    <div class="card-title">歷年國籍航空公司總貨量（公噸）</div>
+    <div class="chart-wrap" style="height:320px"><canvas id="chart-al-total-trend"></canvas></div>
+  </div>
+
+  <!-- 2. 貨運量列表 -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" id="al-table-title" style="margin-bottom:0">國籍航空公司貨運量一覽</div>
+      <div><span class="control-label">年度：</span><select id="al-table-year" class="ctrl-sel"></select></div>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table" id="al-table">
+        <thead id="al-thead"></thead>
+        <tbody id="al-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. 各機場國籍航空公司貨量趨勢 -->
+  <div class="card">
+    <div class="card-title">各機場國籍航空公司貨量趨勢（公噸）</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <span class="control-label" style="white-space:nowrap">機場：</span>
+      <div id="al-trend-ap" class="oa-airport-tabs" style="border-bottom:none;padding-bottom:0;margin-bottom:0"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <span class="control-label" style="white-space:nowrap">指標：</span>
+      <div class="btn-group" id="al-trend-metric"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="control-label" style="white-space:nowrap">航空公司（可多選）：</span>
+      <div id="al-trend-airlines" style="display:flex;gap:6px 14px;flex-wrap:wrap"></div>
+    </div>
+    <div class="chart-wrap" style="height:320px"><canvas id="chart-al-trend"></canvas></div>
+  </div>
+
+  <!-- 4. 各航空公司貨量組成（每家一個甜甜圈：進出轉口佔比）-->
+  <div class="card">
+    <div class="card-title" id="al-donut-title">各國籍航空公司貨量組成（進出轉口佔比）</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="control-label" style="white-space:nowrap">機場：</span>
+      <div id="al-donut-ap" class="oa-airport-tabs" style="border-bottom:none;padding-bottom:0;margin-bottom:0"></div>
+    </div>
+    <div id="al-donut-grid" class="al-donut-grid"></div>
+  </div>
 </div>
 
 <!-- ================================================================
      PAGE: 桃園空港自貿統計
      ================================================================ -->
 <div id="page-tpe-ftz" class="page">
-  <div class="wip-placeholder">桃園空港自貿統計（施工中）</div>
+  <div class="ftz-h">桃園空港自由貿易港區統計</div>
+
+  <!-- 1. 重點卡片 -->
+  <div class="s-grid s-grid-4" id="ftz-kpi-row"></div>
+
+  <!-- 2. 歷年貿易規模 -->
+  <div class="ftz-h">歷年貿易規模</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">歷年貿易值（千億元）</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chart-ftz-val-trend"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">歷年貿易量（萬噸）</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chart-ftz-vol-trend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 3. 貨品類別組成 -->
+  <div class="ftz-h">貨品類別組成（歷年百分比）</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">貿易值佔比（億元）</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chart-ftz-cat-val"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">貿易量佔比（公噸）</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chart-ftz-cat-vol"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 4. 貿易國組成 -->
+  <div class="ftz-h">貿易國組成（歷年百分比）</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">貿易值佔比（億元）</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chart-ftz-ctry-val"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">貿易量佔比（公噸）</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chart-ftz-ctry-vol"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 5. 貨品類別歷年趨勢 -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:2px">貨品類別歷年趨勢</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">貿易量：公噸（左軸）｜貿易值：億元（右軸）</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="control-label" style="white-space:nowrap">方向：</span>
+      <div class="btn-group" id="ftz-cat-dir"></div>
+      <span class="control-label" style="white-space:nowrap;margin-left:8px">貨品：</span>
+      <select id="ftz-cat-sel" class="ctrl-sel" style="min-width:200px;max-width:100%"></select>
+    </div>
+    <div class="chart-wrap" style="height:320px"><canvas id="chart-ftz-cat-trend"></canvas></div>
+  </div>
+
+  <!-- 6. 貿易國歷年趨勢 -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:2px">貿易國歷年趨勢</div>
+    <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">貿易量：公噸（左軸）｜貿易值：億元（右軸）</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="control-label" style="white-space:nowrap">方向：</span>
+      <div class="btn-group" id="ftz-ctry-dir"></div>
+      <span class="control-label" style="white-space:nowrap;margin-left:8px">國家：</span>
+      <select id="ftz-ctry-sel" class="ctrl-sel" style="min-width:160px;max-width:100%"></select>
+    </div>
+    <div class="chart-wrap" style="height:320px"><canvas id="chart-ftz-ctry-trend"></canvas></div>
+  </div>
+
+  <!-- 7. 交叉分析 -->
+  <div class="ftz-h">交叉分析</div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+    <span class="control-label" style="white-space:nowrap">方向：</span>
+    <div class="btn-group" id="ftz-cross-dir"></div>
+    <span class="control-label" style="white-space:nowrap;margin-left:8px">指標：</span>
+    <div class="btn-group" id="ftz-cross-metric"></div>
+  </div>
+  <div class="card">
+    <div style="font-weight:700;color:var(--primary-dark);font-size:15px;margin-bottom:12px">選擇貨品別，比較各國歷年趨勢</div>
+    <div class="ftz-cross-flex">
+      <div class="ftz-cross-picker">
+        <span class="control-label">貨品（僅前八大）：</span>
+        <select id="ftz-cross-cat-sel" class="ctrl-sel"></select>
+        <span class="control-label" style="margin-top:6px">可多選國家（僅前八大）：</span>
+        <div id="ftz-cross-cat-ctries" style="display:flex;gap:6px 12px;flex-wrap:wrap"></div>
+      </div>
+      <div class="ftz-cross-chart chart-wrap" style="height:340px"><canvas id="chart-ftz-cross-cat"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-weight:700;color:var(--primary-dark);font-size:15px;margin-bottom:12px">選擇國家別，比較各貨品歷年趨勢</div>
+    <div class="ftz-cross-flex">
+      <div class="ftz-cross-picker">
+        <span class="control-label">國家（僅前八大）：</span>
+        <select id="ftz-cross-ctry-sel" class="ctrl-sel"></select>
+        <span class="control-label" style="margin-top:6px">可多選貨品（僅前八大）：</span>
+        <div id="ftz-cross-ctry-cats" style="display:flex;gap:6px 12px;flex-wrap:wrap"></div>
+      </div>
+      <div class="ftz-cross-chart chart-wrap" style="height:340px"><canvas id="chart-ftz-cross-ctry"></canvas></div>
+    </div>
+  </div>
 </div>
 
 
@@ -1590,8 +1762,10 @@ const TOOLTIP = {
 
 /* 甜甜圈圖統一資料標籤：一律標於環外、深色、格式「名稱 X萬噸 (百分比)」，
    佔比 < minFrac（預設 3%）的小切片不顯示標籤以避免重疊。搭配 layout.padding 預留外側空間。*/
-function donutOutsideLabels(total, minFrac) {
-  minFrac = (minFrac == null) ? 0.03 : minFrac;
+function donutOutsideLabels(total, opts) {
+  opts = opts || {};
+  var minFrac = (opts.minFrac == null) ? 0.03 : opts.minFrac;
+  var fmtVal  = opts.fmtVal || function(v) { return Math.round(v / 10000) + '萬噸'; };
   return {
     anchor: 'end', align: 'end', offset: 8, clip: false,
     color: '#2a3a4a', font: { size: 11, weight: '700' }, textAlign: 'center',
@@ -1599,7 +1773,7 @@ function donutOutsideLabels(total, minFrac) {
     formatter: function(value, ctx) {
       if (!total) return '';
       var p = (value / total * 100).toFixed(1);
-      return ctx.chart.data.labels[ctx.dataIndex] + '\n' + Math.round(value / 10000) + '萬噸 (' + p + '%)';
+      return ctx.chart.data.labels[ctx.dataIndex] + '\n' + fmtVal(value) + ' (' + p + '%)';
     },
   };
 }
@@ -3510,6 +3684,12 @@ async function renderTaoyuanTrade() {
     renderTradeSubtab('imp', DB.impData);
     renderTradeSubtab('exp', DB.expData);
     renderTradeCross();
+    /* 深連結還原：如 #taoyuan/trade/exp，渲染完成後切到指定子頁籤 */
+    if (_pendingTradeSub) {
+      var pb = document.querySelector('#subtab-bar-ty-trade button[data-subtab="' + _pendingTradeSub + '"]');
+      _pendingTradeSub = null;
+      if (pb) switchTySubtab(pb, 'subtab-bar-ty-trade');
+    }
   } catch(err) {
     console.error('[Aviation] Trade render error:', err);
     var errEl = document.createElement('div');
@@ -3587,6 +3767,7 @@ function switchTySubtab(btn, barId) {
   setTimeout(function() {
     Object.values(CHARTS).forEach(function(c) { try { c.resize(); } catch(e) {} });
   }, 50);
+  if (typeof syncHash === 'function') syncHash();
 }
 
 /* ============================================================
@@ -3597,6 +3778,7 @@ function switchOaAirport(btn, apId) {
   _oaApId = apId;
   document.querySelectorAll('.oa-ap-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
+  if (typeof syncHash === 'function') syncHash();
   if (DB.cargoData) renderOaCurrentPanel();
 }
 
@@ -3935,6 +4117,627 @@ function renderOaMonthly() {
 }
 
 /* ============================================================
+   AIRLINE — 國籍航空公司貨量分析
+   al_annual 欄位：年份, 航空公司, 機場, 貨流方向, 貨量（公噸）
+   貨流方向：進口 / 出口 / 轉口合計 / 轉口_進倉 / 轉口_出倉 / 轉口_機下直轉
+   機場：總計 / 桃園機場 / 高雄機場 / 松山機場 / 台中機場
+   ============================================================ */
+/* 六家現役國籍航空（復興、遠東已停業，貨量趨近於零，不列入）*/
+var AL_AIRLINES = [
+  { key: '中華',     label: '中華航空' },
+  { key: '長榮',     label: '長榮航空' },
+  { key: '星宇',     label: '星宇航空' },
+  { key: '立榮',     label: '立榮航空' },
+  { key: '華信',     label: '華信航空' },
+  { key: '台灣虎航', label: '台灣虎航' },
+].map(function(a) { a.clr = CLR.airline[a.key] || '#888888'; return a; });
+
+var AL_AIRPORTS = [
+  { key: '桃園機場', label: '桃園機場' },
+  { key: '高雄機場', label: '高雄機場' },
+  { key: '松山機場', label: '松山機場' },
+  { key: '台中機場', label: '台中機場' },
+];
+
+var AL_TABLE_COLS = [
+  { key: '總計貨運量', label: '總計' },
+  { key: '進口合計',   label: '進口合計' },
+  { key: '出口合計',   label: '出口合計' },
+  { key: '轉口合計',   label: '轉口合計' },
+  { key: '轉口進出倉', label: '轉口進出倉' },
+  { key: '機下直轉',   label: '機下直轉' },
+];
+
+var AL_TREND_METRICS = [
+  { key: '總計貨運量', label: '總貨量' },
+  { key: '進口合計',   label: '進口' },
+  { key: '出口合計',   label: '出口' },
+  { key: '轉口合計',   label: '轉口' },
+  { key: '機下直轉',   label: '機下直轉' },
+];
+
+/* 甜甜圈組成的三個貨流（每家航空公司一個甜甜圈，用統一的進出轉口色系）*/
+var AL_DONUT_FLOWS = [
+  { key: '進口合計', label: '進口',     clr: CLR.flow['進口合計'] },
+  { key: '出口合計', label: '出口',     clr: CLR.flow['出口合計'] },
+  { key: '轉口合計', label: '轉口合計', clr: CLR.flow['轉口合計'] },
+];
+
+function buildAirlineAnnualData(rows) {
+  var d = {};
+  rows.forEach(function(r) {
+    var ap = r['機場'], al = r['航空公司'], yr = r['年份'], dir = r['貨流方向'], val = +r['貨量（公噸）'] || 0;
+    if (!ap || !al || yr == null || !dir) return;
+    if (!d[ap])         d[ap] = {};
+    if (!d[ap][al])     d[ap][al] = {};
+    if (!d[ap][al][yr]) d[ap][al][yr] = {};
+    d[ap][al][yr][dir] = (d[ap][al][yr][dir] || 0) + val;
+  });
+  /* 衍生指標 */
+  Object.values(d).forEach(function(byAl) {
+    Object.values(byAl).forEach(function(byYr) {
+      Object.values(byYr).forEach(function(m) {
+        m['進口合計']   = m['進口'] || 0;
+        m['出口合計']   = m['出口'] || 0;
+        m['轉口合計']   = m['轉口合計'] || 0;
+        m['轉口進出倉'] = (m['轉口_進倉'] || 0) + (m['轉口_出倉'] || 0);
+        m['機下直轉']   = m['轉口_機下直轉'] || 0;
+        m['總計貨運量'] = m['進口合計'] + m['出口合計'] + m['轉口合計'];
+      });
+    });
+  });
+  return d;
+}
+
+function alVal(airport, airline, yr, metric) {
+  var m = ((DB.airlineData[airport] || {})[airline] || {})[yr];
+  return m ? (m[metric] || 0) : 0;
+}
+
+function alYears() {
+  var s = new Set();
+  var tot = DB.airlineData['總計'] || {};
+  Object.values(tot).forEach(function(byYr) { Object.keys(byYr).forEach(function(y) { s.add(+y); }); });
+  return Array.from(s).sort(function(a, b) { return a - b; });
+}
+
+/* 某機場實際有貨量的航空公司（依 AL_AIRLINES 順序）*/
+function alAirlinesAt(airport) {
+  return AL_AIRLINES.filter(function(a) {
+    var byYr = (DB.airlineData[airport] || {})[a.key] || {};
+    return Object.values(byYr).some(function(m) { return (m['總計貨運量'] || 0) > 0; });
+  });
+}
+
+/* 共用折線圖設定（Y 軸自動萬噸）*/
+function alLineOptions() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 13, color: '#5A7A8A', padding: 8, font: { size: 11 } } },
+      datalabels: { display: false },
+      tooltip: Object.assign({}, TOOLTIP, {
+        callbacks: { label: function(ctx) { return ' ' + ctx.dataset.label + '：' + fmtN(ctx.raw) + ' 公噸'; } }
+      }),
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#5A7A8A' } },
+      y: { min: 0, grid: { color: 'rgba(90,122,138,.12)' }, ticks: { color: '#5A7A8A',
+        callback: function(v) { return v >= 10000 ? Math.round(v / 10000) + '萬' : fmtN(v); } } },
+    },
+  };
+}
+
+function renderAirlinePage() {
+  var years = alYears();
+  var latestY = years[years.length - 1] || LATEST_YEAR;
+
+  /* ── 1. 歷年總貨量折線圖（機場=總計）── */
+  CHARTS['chart-al-total-trend'] = new Chart(getOrDestroy('chart-al-total-trend'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: AL_AIRLINES.map(function(a) {
+        return {
+          label: a.label,
+          data: years.map(function(y) { return alVal('總計', a.key, y, '總計貨運量') || null; }),
+          borderColor: a.clr, backgroundColor: a.clr + '22',
+          tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5, spanGaps: false,
+        };
+      }),
+    },
+    options: alLineOptions(),
+  });
+
+  /* ── 2. 貨運量列表 ── */
+  var tblYearSel = document.getElementById('al-table-year');
+  tblYearSel.innerHTML = years.slice().reverse().map(function(y) {
+    return '<option value="' + y + '"' + (y === latestY ? ' selected' : '') + '>' + y + '年</option>';
+  }).join('');
+  function renderAlTable(yr) {
+    document.getElementById('al-table-title').textContent = yr + '年 國籍航空公司貨運量一覽（公噸）';
+    document.getElementById('al-thead').innerHTML =
+      '<tr><th>航空公司</th>' + AL_TABLE_COLS.map(function(c) { return '<th class="td-num">' + c.label + '</th>'; }).join('') + '</tr>';
+    var totals = {};
+    var body = AL_AIRLINES.map(function(a) {
+      return '<tr><td style="color:var(--primary-dark);font-weight:600;white-space:nowrap">' + a.label + '</td>'
+        + AL_TABLE_COLS.map(function(c) {
+            var v = alVal('總計', a.key, yr, c.key);
+            totals[c.key] = (totals[c.key] || 0) + v;
+            return '<td class="td-num">' + fmtN(v) + '</td>';
+          }).join('') + '</tr>';
+    }).join('');
+    var totalRow = '<tr class="total-row"><td style="white-space:nowrap">合計</td>'
+      + AL_TABLE_COLS.map(function(c) { return '<td class="td-num">' + fmtN(totals[c.key]) + '</td>'; }).join('') + '</tr>';
+    document.getElementById('al-tbody').innerHTML = body + totalRow;
+  }
+  renderAlTable(latestY);
+  tblYearSel.addEventListener('change', function() { renderAlTable(+this.value); });
+
+  /* ── 3. 各機場航空公司貨量趨勢 ── */
+  var trendApBar   = document.getElementById('al-trend-ap');
+  var trendMetBar  = document.getElementById('al-trend-metric');
+  var trendAlBox   = document.getElementById('al-trend-airlines');
+  var trendState   = { ap: AL_AIRPORTS[0].key, metric: '總計貨運量' };
+  trendApBar.innerHTML = AL_AIRPORTS.map(function(ap, i) {
+    return '<button class="oa-ap-btn' + (i === 0 ? ' active' : '') + '" data-ap="' + ap.key + '">' + ap.label + '</button>';
+  }).join('');
+  trendMetBar.innerHTML = AL_TREND_METRICS.map(function(m, i) {
+    return '<button class="metric-btn' + (i === 0 ? ' active' : '') + '" data-metric="' + m.key + '">' + m.label + '</button>';
+  }).join('');
+  function buildTrendAirlineChecks() {
+    trendAlBox.innerHTML = alAirlinesAt(trendState.ap).map(function(a) {
+      return '<label style="display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;white-space:nowrap">'
+        + '<input type="checkbox" data-key="' + a.key + '" checked>'
+        + '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + a.clr + ';flex-shrink:0"></span>'
+        + a.label + '</label>';
+    }).join('');
+  }
+  function renderAlTrend() {
+    var sel = new Set(Array.from(trendAlBox.querySelectorAll('input[type=checkbox]:checked')).map(function(cb) { return cb.dataset.key; }));
+    var datasets = alAirlinesAt(trendState.ap).filter(function(a) { return sel.has(a.key); }).map(function(a) {
+      return {
+        label: a.label,
+        data: years.map(function(y) { return alVal(trendState.ap, a.key, y, trendState.metric) || null; }),
+        borderColor: a.clr, backgroundColor: a.clr + '22',
+        tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5, spanGaps: false,
+      };
+    });
+    CHARTS['chart-al-trend'] = new Chart(getOrDestroy('chart-al-trend'), {
+      type: 'line', data: { labels: years, datasets: datasets }, options: alLineOptions(),
+    });
+  }
+  trendApBar.addEventListener('click', function(e) {
+    var b = e.target.closest('button'); if (!b) return;
+    trendApBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active'); trendState.ap = b.dataset.ap;
+    buildTrendAirlineChecks(); renderAlTrend();
+  });
+  trendMetBar.addEventListener('click', function(e) {
+    var b = e.target.closest('button'); if (!b) return;
+    trendMetBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active'); trendState.metric = b.dataset.metric; renderAlTrend();
+  });
+  trendAlBox.addEventListener('change', renderAlTrend);
+  buildTrendAirlineChecks();
+  renderAlTrend();
+
+  /* ── 4. 各航空公司貨量組成：每家一個甜甜圈（進口/出口/轉口佔比）── */
+  var donutApBar = document.getElementById('al-donut-ap');
+  var donutGrid  = document.getElementById('al-donut-grid');
+  var AL_DONUT_AIRPORTS = AL_AIRPORTS.concat([{ key: '總計', label: '全機場合計' }]);
+  var donutState = { ap: AL_AIRPORTS[0].key };
+  donutApBar.innerHTML = AL_DONUT_AIRPORTS.map(function(ap, i) {
+    return '<button class="oa-ap-btn' + (i === 0 ? ' active' : '') + '" data-ap="' + ap.key + '">' + ap.label + '</button>';
+  }).join('');
+
+  function renderAlDonutGrid() {
+    var apLabel = (AL_DONUT_AIRPORTS.find(function(x) { return x.key === donutState.ap; }) || {}).label || donutState.ap;
+    document.getElementById('al-donut-title').textContent =
+      latestY + '年 ' + apLabel + '　各國籍航空公司貨量組成（進出轉口佔比）';
+    /* 清除舊圖 */
+    AL_AIRLINES.forEach(function(a) {
+      var cid = 'chart-al-mini-' + a.key;
+      if (CHARTS[cid]) { CHARTS[cid].destroy(); delete CHARTS[cid]; }
+    });
+    var airlines = alAirlinesAt(donutState.ap);
+    donutGrid.innerHTML = airlines.map(function(a) {
+      return '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg)">'
+        + '<div style="background:var(--primary-dark);color:#fff;font-weight:700;text-align:center;padding:8px 6px;font-size:14px;letter-spacing:.02em">' + a.label + '</div>'
+        + '<div style="padding:10px 8px 6px;position:relative;height:220px"><canvas id="chart-al-mini-' + a.key + '"></canvas></div>'
+        + '</div>';
+    }).join('');
+    airlines.forEach(function(a) {
+      var vals   = AL_DONUT_FLOWS.map(function(f) { return alVal(donutState.ap, a.key, latestY, f.key); });
+      var labels = AL_DONUT_FLOWS.map(function(f) { return f.label; });
+      var colors = AL_DONUT_FLOWS.map(function(f) { return f.clr; });
+      var tot    = vals.reduce(function(s, v) { return s + v; }, 0);
+      var useWan = tot >= 10000;
+      var cid    = 'chart-al-mini-' + a.key;
+      CHARTS[cid] = new Chart(document.getElementById(cid).getContext('2d'), {
+        type: 'doughnut', plugins: [ChartDataLabels],
+        data: { labels: labels, datasets: [{ data: vals, backgroundColor: colors, cutout: '54%', borderWidth: 0 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, layout: { padding: 6 },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 11, color: '#5A7A8A', padding: 8, font: { size: 11 } } },
+            datalabels: {
+              display: function(ctx) { var v = ctx.dataset.data[ctx.dataIndex]; return tot > 0 && v / tot >= 0.03; },
+              color: '#fff', font: { size: 11, weight: '700' }, textAlign: 'center', clip: false,
+              textStrokeColor: 'rgba(4,40,66,.85)', textStrokeWidth: 3,
+              textShadowColor: 'rgba(4,40,66,.7)', textShadowBlur: 4,
+              formatter: function(v) {
+                if (!tot) return '';
+                var vs = useWan ? (v / 10000).toFixed(1) + '萬' : fmtN(Math.round(v));
+                return vs + '\n' + (v / tot * 100).toFixed(1) + '%';
+              },
+            },
+            tooltip: Object.assign({}, TOOLTIP, {
+              callbacks: { label: function(ctx) {
+                return ' ' + ctx.label + '：' + fmtN(ctx.raw) + ' 公噸 (' + (tot > 0 ? (ctx.raw / tot * 100).toFixed(1) : '0.0') + '%)';
+              } }
+            }),
+          },
+        },
+      });
+    });
+  }
+  donutApBar.addEventListener('click', function(e) {
+    var b = e.target.closest('button'); if (!b) return;
+    donutApBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active'); donutState.ap = b.dataset.ap; renderAlDonutGrid();
+  });
+  renderAlDonutGrid();
+}
+
+/* ============================================================
+   TPE-FTZ — 桃園空港自由貿易港區統計
+   ftz_sum 欄位：年份, 貿易量（公噸）, 貿易值（千元）  ← 年度總計（權威）
+   ftz_val / ftz_vol 欄位：進出港別, 年份, 商品別, 國家別, 貿易值（千元）/貿易量（公噸）
+   進出港別：國外進儲 / 輸往國外（總計 = 兩者相加）
+   單位換算：億元 = 千元/1e5；千億元 = 千元/1e8；萬噸 = 公噸/1e4
+   ============================================================ */
+var FTZ_DIRECTIONS = [
+  { key: '總計',     label: '總計' },
+  { key: '國外進儲', label: '國外進儲' },
+  { key: '輸往國外', label: '輸往國外' },
+];
+var FTZ_OTHER_CLR = '#AEB8BD';
+
+function buildFtzData(sumRows, valRows, volRows) {
+  var sum = {};
+  sumRows.forEach(function(r) {
+    var y = +r['年份']; if (!y) return;
+    sum[y] = { val: +r['貿易值（千元）'] || 0, vol: +r['貿易量（公噸）'] || 0 };
+  });
+  function agg(rows, valKey) {
+    var byCat = {}, byCtry = {}, cross = {};
+    function add(o, d, y, k, v) { if (!o[d]) o[d] = {}; if (!o[d][y]) o[d][y] = {}; o[d][y][k] = (o[d][y][k] || 0) + v; }
+    function addX(d, y, cat, ctry, v) { if (!cross[d]) cross[d] = {}; if (!cross[d][y]) cross[d][y] = {}; if (!cross[d][y][cat]) cross[d][y][cat] = {}; cross[d][y][cat][ctry] = (cross[d][y][cat][ctry] || 0) + v; }
+    rows.forEach(function(r) {
+      var dir = r['進出港別'], y = +r['年份'], cat = r['商品別'], ctry = r['國家別'], v = +r[valKey] || 0;
+      if (!dir || !y) return;
+      add(byCat, dir, y, cat, v);  add(byCat, '總計', y, cat, v);
+      add(byCtry, dir, y, ctry, v); add(byCtry, '總計', y, ctry, v);
+      addX(dir, y, cat, ctry, v);   addX('總計', y, cat, ctry, v);
+    });
+    return { byCat: byCat, byCtry: byCtry, cross: cross };
+  }
+  var va = agg(valRows, '貿易值（千元）'), vo = agg(volRows, '貿易量（公噸）');
+  return { sum: sum, valByCat: va.byCat, valByCtry: va.byCtry, volByCat: vo.byCat, volByCtry: vo.byCtry,
+           crossVal: va.cross, crossVol: vo.cross };
+}
+
+function ftzYears() {
+  return Object.keys(DB.ftz.sum).map(Number).sort(function(a, b) { return a - b; });
+}
+/* 依某方向歷年累計，取前 N 大 key（不足則全取），已排序 */
+function ftzRankKeys(byDirYear, dir, n) {
+  var totals = {};
+  Object.values(byDirYear[dir] || {}).forEach(function(byK) {
+    Object.entries(byK).forEach(function(e) { totals[e[0]] = (totals[e[0]] || 0) + e[1]; });
+  });
+  return Object.entries(totals).sort(function(a, b) { return b[1] - a[1]; }).slice(0, n).map(function(e) { return e[0]; });
+}
+
+/* 歷年百分比堆疊長條圖（前 N 大 + 其他）*/
+function renderFtzComposition(chartId, byDirYear, topN) {
+  var years = ftzYears();
+  var byYear = byDirYear['總計'] || {};
+  var topKeys = ftzRankKeys(byDirYear, '總計', topN);
+  var series = topKeys.concat(['其他']);
+  var datasets = series.map(function(k, i) {
+    return {
+      label: k,
+      data: years.map(function(y) {
+        var byK = byYear[y] || {};
+        var tot = Object.values(byK).reduce(function(s, v) { return s + v; }, 0);
+        if (!tot) return 0;
+        var v = (k === '其他')
+          ? tot - topKeys.reduce(function(s, tk) { return s + (byK[tk] || 0); }, 0)
+          : (byK[k] || 0);
+        return v / tot * 100;
+      }),
+      backgroundColor: (k === '其他') ? FTZ_OTHER_CLR : CLR.seq[i % CLR.seq.length],
+      borderWidth: 0,
+    };
+  });
+  CHARTS[chartId] = new Chart(getOrDestroy(chartId), {
+    type: 'bar',
+    data: { labels: years, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 11, color: '#5A7A8A', padding: 7, font: { size: 10 } } },
+        datalabels: { display: false },
+        tooltip: Object.assign({}, TOOLTIP, {
+          callbacks: { label: function(ctx) { return ' ' + ctx.dataset.label + '：' + ctx.raw.toFixed(1) + '%'; } }
+        }),
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#5A7A8A', maxRotation: 0, autoSkip: true } },
+        y: { stacked: true, min: 0, max: 100, grid: { color: 'rgba(90,122,138,.12)' }, ticks: { color: '#5A7A8A', callback: function(v) { return v + '%'; } } },
+      },
+    },
+  });
+}
+
+/* 歷年趨勢複合圖：貿易量長條（左軸公噸）+ 貿易值折線（右軸億元）*/
+function setupFtzTrend(dirBarId, selId, chartId, valByDir, volByDir) {
+  var years  = ftzYears();
+  var dirBar = document.getElementById(dirBarId);
+  var sel    = document.getElementById(selId);
+  var state  = { dir: '總計' };
+  dirBar.innerHTML = FTZ_DIRECTIONS.map(function(d, i) {
+    return '<button class="metric-btn' + (i === 0 ? ' active' : '') + '" data-dir="' + d.key + '">' + d.label + '</button>';
+  }).join('');
+  var ranked = ftzRankKeys(valByDir, '總計', 999);
+  sel.innerHTML = ranked.map(function(k, i) {
+    return '<option value="' + k.replace(/"/g, '&quot;') + '"' + (i === 0 ? ' selected' : '') + '>' + k + '</option>';
+  }).join('');
+
+  function render() {
+    var k = sel.value, dir = state.dir;
+    var volData = years.map(function(y) { return ((volByDir[dir] || {})[y] || {})[k] || 0; });
+    var valData = years.map(function(y) { return (((valByDir[dir] || {})[y] || {})[k] || 0) / 1e5; });
+    CHARTS[chartId] = new Chart(getOrDestroy(chartId), {
+      data: {
+        labels: years,
+        datasets: [
+          { type: 'bar',  label: '貿易量（公噸）', data: volData, backgroundColor: '#4E7FA6', yAxisID: 'yVol', order: 2, borderRadius: 2 },
+          { type: 'line', label: '貿易值（億元）', data: valData, borderColor: '#E07B39', backgroundColor: '#E07B39', yAxisID: 'yVal', order: 1, tension: 0.3, fill: false, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { boxWidth: 13, color: '#5A7A8A', padding: 8, font: { size: 11 } } },
+          datalabels: { display: false },
+          tooltip: Object.assign({}, TOOLTIP, {
+            callbacks: { label: function(ctx) {
+              return ctx.dataset.yAxisID === 'yVal'
+                ? ' 貿易值：' + fmtN(Math.round(ctx.raw)) + ' 億元'
+                : ' 貿易量：' + fmtN(Math.round(ctx.raw)) + ' 公噸';
+            } }
+          }),
+        },
+        scales: {
+          x:    { grid: { display: false }, ticks: { color: '#5A7A8A' } },
+          yVol: { type: 'linear', position: 'left', min: 0, grid: { color: 'rgba(90,122,138,.12)' },
+                  title: { display: true, text: '貿易量（公噸）', color: '#5A7A8A', font: { size: 11 } },
+                  ticks: { color: '#5A7A8A', callback: function(v) { return v >= 10000 ? (v / 10000) + '萬' : fmtN(v); } } },
+          yVal: { type: 'linear', position: 'right', min: 0, grid: { drawOnChartArea: false },
+                  title: { display: true, text: '貿易值（億元）', color: '#5A7A8A', font: { size: 11 } },
+                  ticks: { color: '#5A7A8A', callback: function(v) { return fmtN(v); } } },
+        },
+      },
+    });
+  }
+  dirBar.addEventListener('click', function(e) {
+    var b = e.target.closest('button'); if (!b) return;
+    dirBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active'); state.dir = b.dataset.dir; render();
+  });
+  sel.addEventListener('change', render);
+  render();
+}
+
+function renderFtzKpi(y) {
+  var s = DB.ftz.sum[y] || { val: 0, vol: 0 };
+  var catVal  = (DB.ftz.valByCat['總計']  || {})[y] || {};
+  var catVol  = (DB.ftz.volByCat['總計']  || {})[y] || {};
+  var ctryVal = (DB.ftz.valByCtry['總計'] || {})[y] || {};
+  var ctryVol = (DB.ftz.volByCtry['總計'] || {})[y] || {};
+  function tot(o) { return Object.values(o).reduce(function(a, b) { return a + b; }, 0); }
+  function top(o) { return Object.entries(o).sort(function(a, b) { return b[1] - a[1]; })[0] || ['—', 0]; }
+  var catValTot = tot(catVal), catVolTot = tot(catVol), ctryValTot = tot(ctryVal), ctryVolTot = tot(ctryVol);
+  var topCat = top(catVal), topCtry = top(ctryVal);
+  var pc = function(a, b) { return b ? (a / b * 100).toFixed(1) : '0.0'; };
+
+  function card(label, mainHtml, subHtml) {
+    return '<div class="s-card"><div class="s-label">' + label + '</div>'
+      + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">'
+      + '<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:2px;justify-content:center;text-align:center">' + mainHtml + '</div>'
+      + (subHtml ? '<div style="font-size:11.5px;color:var(--text-2);text-align:center;line-height:1.7">' + subHtml + '</div>' : '')
+      + '</div></div>';
+  }
+  /* 主要貨品／主要國名稱：兩張卡片統一字級 */
+  var nameStyle = 'font-size:20px;font-weight:700;color:var(--text);word-break:break-all;line-height:1.3';
+  document.getElementById('ftz-kpi-row').innerHTML = [
+    card(y + '年 貿易量', '<span class="s-value num">' + fmtN(Math.round(s.vol)) + '<span class="s-unit">公噸</span></span>', ''),
+    card(y + '年 貿易值', '<span class="s-value num">' + fmtN(Math.round(s.val / 1e5)) + '<span class="s-unit">億元</span></span>', ''),
+    card('主要貿易貨品',
+      '<span style="' + nameStyle + '">' + topCat[0] + '</span>',
+      '貿易值佔比 <b style="color:var(--primary-dark)">' + pc(topCat[1], catValTot) + '%</b>　貿易量佔比 <b style="color:var(--primary-dark)">' + pc(catVol[topCat[0]] || 0, catVolTot) + '%</b>'),
+    card('主要貿易國',
+      '<span style="' + nameStyle + '">' + topCtry[0] + '</span>',
+      '貿易值佔比 <b style="color:var(--primary-dark)">' + pc(topCtry[1], ctryValTot) + '%</b>　貿易量佔比 <b style="color:var(--primary-dark)">' + pc(ctryVol[topCtry[0]] || 0, ctryVolTot) + '%</b>'),
+  ].join('');
+}
+
+/* 交叉分析：共用 方向(總計/國外進儲/輸往國外) + 指標(貿易值/貿易量) toggle；
+   子圖 A = 選單一貨品、多選國家；子圖 B = 選單一國家、多選貨品。未選時預設前三大。
+   下拉多選清單以「貿易值·總計」排序取前 8 大，供勾選。*/
+function setupFtzCross() {
+  var years   = ftzYears();
+  var dirBar  = document.getElementById('ftz-cross-dir');
+  var metBar  = document.getElementById('ftz-cross-metric');
+  var catSel  = document.getElementById('ftz-cross-cat-sel');
+  var ctrySel = document.getElementById('ftz-cross-ctry-sel');
+  var catCtryBox = document.getElementById('ftz-cross-cat-ctries');
+  var ctryCatBox = document.getElementById('ftz-cross-ctry-cats');
+  var state = { dir: '總計', metric: 'val' };
+  function esc(s) { return String(s).replace(/"/g, '&quot;'); }
+
+  dirBar.innerHTML = FTZ_DIRECTIONS.map(function(d, i) {
+    return '<button class="metric-btn' + (i === 0 ? ' active' : '') + '" data-dir="' + d.key + '">' + d.label + '</button>';
+  }).join('');
+  metBar.innerHTML = [{ k: 'val', l: '貿易值' }, { k: 'vol', l: '貿易量' }].map(function(m, i) {
+    return '<button class="metric-btn' + (i === 0 ? ' active' : '') + '" data-metric="' + m.k + '">' + m.l + '</button>';
+  }).join('');
+
+  /* 主查詢下拉與可多選清單均僅提供前八大 */
+  catSel.innerHTML  = ftzRankKeys(DB.ftz.valByCat,  '總計', 8).map(function(k, i) { return '<option value="' + esc(k) + '"' + (i === 0 ? ' selected' : '') + '>' + k + '</option>'; }).join('');
+  ctrySel.innerHTML = ftzRankKeys(DB.ftz.valByCtry, '總計', 8).map(function(k, i) { return '<option value="' + esc(k) + '"' + (i === 0 ? ' selected' : '') + '>' + k + '</option>'; }).join('');
+
+  function unit() { return state.metric === 'val' ? '億元' : '公噸'; }
+  function mval(cat, ctry, y) {
+    var cross = state.metric === 'val' ? DB.ftz.crossVal : DB.ftz.crossVol;
+    var v = (((cross[state.dir] || {})[y] || {})[cat] || {})[ctry] || 0;
+    return state.metric === 'val' ? v / 1e5 : v;
+  }
+  function topCtriesForCat(cat) {
+    var t = {};
+    years.forEach(function(y) { var byC = ((DB.ftz.crossVal['總計'] || {})[y] || {})[cat] || {}; Object.entries(byC).forEach(function(e) { t[e[0]] = (t[e[0]] || 0) + e[1]; }); });
+    return Object.entries(t).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8).map(function(e) { return e[0]; });
+  }
+  function topCatsForCtry(ctry) {
+    var t = {};
+    years.forEach(function(y) { var byY = (DB.ftz.crossVal['總計'] || {})[y] || {}; Object.keys(byY).forEach(function(cat) { t[cat] = (t[cat] || 0) + (byY[cat][ctry] || 0); }); });
+    return Object.entries(t).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8).map(function(e) { return e[0]; });
+  }
+  function fillChecks(box, items) {
+    box.innerHTML = items.map(function(k, i) {
+      return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;white-space:nowrap">'
+        + '<input type="checkbox" data-key="' + esc(k) + '"' + (i < 3 ? ' checked' : '') + '>' + k + '</label>';
+    }).join('');
+  }
+  function lineOpts() {
+    return {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 13, color: '#5A7A8A', padding: 8, font: { size: 11 } } },
+        datalabels: { display: false },
+        tooltip: Object.assign({}, TOOLTIP, { callbacks: { label: function(ctx) { return ' ' + ctx.dataset.label + '：' + fmtN(Math.round(ctx.raw)) + ' ' + unit(); } } }),
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A7A8A' } },
+        y: { min: 0, grid: { color: 'rgba(90,122,138,.12)' }, title: { display: true, text: unit(), color: '#5A7A8A', font: { size: 11 } }, ticks: { color: '#5A7A8A', callback: function(v) { return fmtN(v); } } },
+      },
+    };
+  }
+  function buildDatasets(box, valAt) {
+    var ds = [];
+    Array.from(box.querySelectorAll('input[type=checkbox]')).forEach(function(cb, i) {
+      if (!cb.checked) return;
+      var k = cb.dataset.key, clr = CLR.seq[i % CLR.seq.length];
+      ds.push({ label: k, data: years.map(function(y) { return valAt(k, y); }), borderColor: clr, backgroundColor: clr + '22', tension: 0.35, fill: false, pointRadius: 3, pointHoverRadius: 5, spanGaps: false });
+    });
+    return ds;
+  }
+  function renderCat() {
+    var cat = catSel.value;
+    CHARTS['chart-ftz-cross-cat'] = new Chart(getOrDestroy('chart-ftz-cross-cat'), {
+      type: 'line', data: { labels: years, datasets: buildDatasets(catCtryBox, function(ctry, y) { return mval(cat, ctry, y); }) }, options: lineOpts(),
+    });
+  }
+  function renderCtry() {
+    var ctry = ctrySel.value;
+    CHARTS['chart-ftz-cross-ctry'] = new Chart(getOrDestroy('chart-ftz-cross-ctry'), {
+      type: 'line', data: { labels: years, datasets: buildDatasets(ctryCatBox, function(cat, y) { return mval(cat, ctry, y); }) }, options: lineOpts(),
+    });
+  }
+
+  dirBar.addEventListener('click', function(e) { var b = e.target.closest('button'); if (!b) return; dirBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); }); b.classList.add('active'); state.dir = b.dataset.dir; renderCat(); renderCtry(); });
+  metBar.addEventListener('click', function(e) { var b = e.target.closest('button'); if (!b) return; metBar.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); }); b.classList.add('active'); state.metric = b.dataset.metric; renderCat(); renderCtry(); });
+  catSel.addEventListener('change',  function() { fillChecks(catCtryBox, topCtriesForCat(catSel.value)); renderCat(); });
+  ctrySel.addEventListener('change', function() { fillChecks(ctryCatBox, topCatsForCtry(ctrySel.value)); renderCtry(); });
+  catCtryBox.addEventListener('change', renderCat);
+  ctryCatBox.addEventListener('change', renderCtry);
+
+  fillChecks(catCtryBox, topCtriesForCat(catSel.value));
+  fillChecks(ctryCatBox, topCatsForCtry(ctrySel.value));
+  renderCat();
+  renderCtry();
+}
+
+function renderFtzPage() {
+  var years = ftzYears();
+  var latestY = years[years.length - 1] || LATEST_YEAR;
+
+  /* 1. 重點卡片 */
+  renderFtzKpi(latestY);
+
+  /* 2. 歷年貿易規模 */
+  CHARTS['chart-ftz-val-trend'] = new Chart(getOrDestroy('chart-ftz-val-trend'), {
+    type: 'line',
+    data: { labels: years, datasets: [{
+      label: '貿易值（千億元）',
+      data: years.map(function(y) { return (DB.ftz.sum[y].val) / 1e8; }),
+      borderColor: '#C86647', backgroundColor: '#C8664722', tension: 0.3, fill: true, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5,
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }, datalabels: { display: false },
+        tooltip: Object.assign({}, TOOLTIP, { callbacks: { label: function(ctx) { return ' 貿易值：' + ctx.raw.toFixed(2) + ' 千億元'; } } }),
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A7A8A' } },
+        y: { min: 0, grid: { color: 'rgba(90,122,138,.12)' }, ticks: { color: '#5A7A8A', callback: function(v) { return v + '千億'; } } },
+      },
+    },
+  });
+  CHARTS['chart-ftz-vol-trend'] = new Chart(getOrDestroy('chart-ftz-vol-trend'), {
+    type: 'bar', plugins: [ChartDataLabels],
+    data: { labels: years, datasets: [{
+      label: '貿易量（萬噸）',
+      data: years.map(function(y) { return DB.ftz.sum[y].vol / 1e4; }),
+      backgroundColor: '#2E5F78', borderRadius: 2,
+    }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 20 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: { anchor: 'end', align: 'end', offset: 1, clip: false, color: '#2E5F78', font: { size: 10, weight: '700' }, formatter: function(v) { return v.toFixed(1); } },
+        tooltip: Object.assign({}, TOOLTIP, { callbacks: { label: function(ctx) { return ' 貿易量：' + ctx.raw.toFixed(2) + ' 萬噸'; } } }),
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#5A7A8A' } },
+        y: { min: 0, grid: { color: 'rgba(90,122,138,.12)' }, ticks: { color: '#5A7A8A', callback: function(v) { return v + '萬'; } } },
+      },
+    },
+  });
+
+  /* 3. 貨品類別組成 */
+  renderFtzComposition('chart-ftz-cat-val', DB.ftz.valByCat, 6);
+  renderFtzComposition('chart-ftz-cat-vol', DB.ftz.volByCat, 6);
+  /* 4. 貿易國組成 */
+  renderFtzComposition('chart-ftz-ctry-val', DB.ftz.valByCtry, 7);
+  renderFtzComposition('chart-ftz-ctry-vol', DB.ftz.volByCtry, 7);
+
+  /* 5. 貨品類別歷年趨勢 */
+  setupFtzTrend('ftz-cat-dir', 'ftz-cat-sel', 'chart-ftz-cat-trend', DB.ftz.valByCat, DB.ftz.volByCat);
+  /* 6. 貿易國歷年趨勢 */
+  setupFtzTrend('ftz-ctry-dir', 'ftz-ctry-sel', 'chart-ftz-ctry-trend', DB.ftz.valByCtry, DB.ftz.volByCtry);
+  /* 7. 交叉分析 */
+  setupFtzCross();
+}
+
+/* ============================================================
    PAGES 註冊表
    ============================================================ */
 function makeOnce(fn) {
@@ -4027,18 +4830,50 @@ const PAGES = {
   },
   airline: {
     getHash: function() { return 'airline'; },
-    init: makeOnce(async function() { /* TODO */ }),
+    init: makeOnce(async function() {
+      showLoading(true);
+      try {
+        if (!DB.airlineData) {
+          var rows = await fetchGviz(SHEETS.al_annual);
+          DB.airlineData = buildAirlineAnnualData(rows);
+        }
+        renderAirlinePage();
+      } catch(err) {
+        console.error('[Aviation] Airline render error:', err);
+        document.getElementById('page-airline').innerHTML =
+          '<div class="error-card"><div class="err-title">資料載入失敗</div>'
+          + '<div class="err-msg">' + (err.message || err) + '</div>'
+          + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 al_annual Sheet ID 正確無誤。</div>'
+          + '</div>';
+      } finally { showLoading(false); }
+    }),
   },
   'tpe-ftz': {
     getHash: function() { return 'tpe-ftz'; },
-    init: makeOnce(async function() { /* TODO */ }),
+    init: makeOnce(async function() {
+      showLoading(true);
+      try {
+        if (!DB.ftz) {
+          var r = await Promise.all([fetchGviz(SHEETS.ftz_sum), fetchGviz(SHEETS.ftz_val), fetchGviz(SHEETS.ftz_vol)]);
+          DB.ftz = buildFtzData(r[0], r[1], r[2]);
+        }
+        renderFtzPage();
+      } catch(err) {
+        console.error('[Aviation] FTZ render error:', err);
+        document.getElementById('page-tpe-ftz').innerHTML =
+          '<div class="error-card"><div class="err-title">自貿統計資料載入失敗</div>'
+          + '<div class="err-msg">' + (err.message || err) + '</div>'
+          + '<div class="err-hint">請確認 Google Sheet 已設為「任何人可以檢視」，並確認 config.js 中的 ftz_sum / ftz_val / ftz_vol Sheet ID 正確無誤。</div>'
+          + '</div>';
+      } finally { showLoading(false); }
+    }),
   },
 };
 
 /* ============================================================
    分頁切換
    ============================================================ */
-function switchPage(pageId) {
+function switchPage(pageId, silent) {
   /* 邊界防護 */
   if (!PAGES[pageId]) pageId = 'home';
 
@@ -4064,7 +4899,7 @@ function switchPage(pageId) {
     showLoading(false);
     console.error('Page init error:', err);
   });
-  history.replaceState(null, '', '#' + entry.getHash());
+  if (!silent) syncHash();
 }
 
 /* ============================================================
@@ -4074,16 +4909,9 @@ var _tyActive  = 'ty-overview';
 var _tyDone    = { overview: false, terminals: false, trade: false, tradeInProgress: false, monthly: false, monthlyInProgress: false };
 
 function switchTaoyuanPanel(panelId, btn) {
-  document.querySelectorAll('.taoyuan-subnav button').forEach(function(b) {
-    b.classList.remove('active');
-  });
-  btn.classList.add('active');
-  document.querySelectorAll('.ty-panel').forEach(function(p) {
-    var show = p.id === panelId;
-    p.style.display = show ? 'flex' : 'none';
-    if (show) { p.style.flexDirection = 'column'; p.style.gap = '20px'; }
-  });
+  showTyPanel(panelId);
   _tyActive = panelId;
+  syncHash();
 
   if (!DB.cargoData) return;
 
@@ -4113,11 +4941,65 @@ function switchTaoyuanPanel(panelId, btn) {
 }
 
 /* ============================================================
-   Hash routing
+   Hash routing — 每個頁面與子頁面各有網址，可直接分享連結
+   路徑：#<page>[/<sub>[/<subsub>]]
+   例：#taoyuan/trade/exp（進出口細項→出口）、#other/tsa（松山機場）
    ============================================================ */
-function parseHash() {
-  var h = (location.hash || '').replace('#', '').split('?')[0];
-  return h || 'home';
+var TY_PANEL_SEG = { 'ty-overview': 'overview', 'ty-terminals': 'terminals', 'ty-trade': 'trade', 'ty-monthly': 'monthly' };
+var TY_SEG_PANEL = { 'overview': 'ty-overview', 'terminals': 'ty-terminals', 'trade': 'ty-trade', 'monthly': 'ty-monthly' };
+var TRADE_SUB_SEG = { 'sub-trade-imp': 'imp', 'sub-trade-exp': 'exp', 'sub-trade-cross': 'cross' };
+var TRADE_SEG_SUB = { 'imp': 'sub-trade-imp', 'exp': 'sub-trade-exp', 'cross': 'sub-trade-cross' };
+var OA_APS = ['khh', 'tsa', 'rmq'];
+var _pendingTradeSub = null;
+
+/* 由目前 UI 狀態組出網址（任何導覽動作都會呼叫）*/
+function syncHash() {
+  var active = document.querySelector('.main-nav button.active');
+  var page = active ? active.dataset.page : 'home';
+  var parts = [page];
+  if (page === 'taoyuan') {
+    if (_tyActive === 'ty-trade') {
+      parts.push('trade');
+      var sub = document.querySelector('#subtab-bar-ty-trade button.active');
+      if (sub && TRADE_SUB_SEG[sub.dataset.subtab]) parts.push(TRADE_SUB_SEG[sub.dataset.subtab]);
+    } else {
+      var seg = TY_PANEL_SEG[_tyActive];
+      if (seg && seg !== 'overview') parts.push(seg);
+    }
+  } else if (page === 'other') {
+    if (_oaApId && _oaApId !== 'khh') parts.push(_oaApId);
+  }
+  history.replaceState(null, '', '#' + parts.join('/'));
+}
+
+/* 只切換桃園子面板的「顯示狀態」（不 render、不改 hash），供深連結還原 */
+function showTyPanel(panelId) {
+  document.querySelectorAll('.taoyuan-subnav button').forEach(function(b) { b.classList.toggle('active', b.dataset.ty === panelId); });
+  document.querySelectorAll('.ty-panel').forEach(function(p) {
+    var show = p.id === panelId;
+    p.style.display = show ? 'flex' : 'none';
+    if (show) { p.style.flexDirection = 'column'; p.style.gap = '20px'; }
+  });
+}
+
+/* 由網址還原頁面 / 子頁面狀態 */
+function routeFromHash() {
+  var parts = (location.hash || '').replace(/^#/, '').split('?')[0].split('/').filter(Boolean);
+  var page = parts[0] || 'home';
+  if (!PAGES[page]) page = 'home';
+
+  if (page === 'taoyuan') {
+    var seg = parts[1] || 'overview';
+    _tyActive = TY_SEG_PANEL[seg] || 'ty-overview';
+    _pendingTradeSub = (seg === 'trade' && parts[2] && TRADE_SEG_SUB[parts[2]]) ? TRADE_SEG_SUB[parts[2]] : null;
+  } else if (page === 'other') {
+    if (parts[1] && OA_APS.indexOf(parts[1]) >= 0) _oaApId = parts[1];
+  }
+
+  switchPage(page, true); /* silent：還原時不覆寫既有網址 */
+
+  if (page === 'taoyuan') showTyPanel(_tyActive);
+  else if (page === 'other') document.querySelectorAll('.oa-ap-btn').forEach(function(b, i) { b.classList.toggle('active', OA_APS[i] === _oaApId); });
 }
 
 /* ============================================================
@@ -4132,14 +5014,14 @@ document.querySelectorAll('.taoyuan-subnav button').forEach(function(btn) {
 });
 
 window.addEventListener('DOMContentLoaded', function() {
-  switchPage(parseHash());
+  routeFromHash();
   /* 應用一啟動就在背景並行預載「進出口細項」資料（無論從哪一頁進入），
      使用者切換到該分頁時通常已載入完成，無需再等待。*/
   ensureTradeData().catch(function() { /* 預載失敗時靜默；使用者實際點入分頁會再重試並顯示錯誤 */ });
 });
 
 window.addEventListener('hashchange', function() {
-  switchPage(parseHash());
+  routeFromHash();
 });
 </script>
 </body>
