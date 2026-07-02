@@ -217,11 +217,6 @@ header h1 {
   padding: 8px 14px; background: var(--bg);
   border-radius: var(--radius-sm); border-left: 3px solid var(--border);
 }
-.cross-section-label {
-  font-size: 11px; font-weight: 700; color: var(--primary-dark);
-  padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
-}
-
 .s-card {
   background: var(--surface);
   border-radius: var(--radius);
@@ -396,53 +391,6 @@ select {
 }
 select:focus { border-color: var(--primary); }
 
-.filter-btn {
-  font-family: "Noto Sans TC", sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1.5px solid var(--primary-border);
-  background: var(--surface);
-  color: var(--text-2);
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.filter-btn:hover { background: var(--primary-bg); color: var(--primary-dark); }
-.filter-btn.active {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #fff;
-  font-weight: 700;
-}
-
-/* ============================================================
-   Radio filter (機場選擇等)
-   ============================================================ */
-.radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.radio-group label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 5px 12px;
-  border: 1.5px solid var(--primary-border);
-  border-radius: 20px;
-  background: var(--surface);
-  color: var(--text-2);
-  transition: all .15s;
-}
-.radio-group label:hover { background: var(--primary-bg); color: var(--primary-dark); }
-.radio-group input[type=radio] { display: none; }
-.radio-group input[type=radio]:checked + span,
-.radio-group label:has(input[type=radio]:checked) {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  color: #fff;
-}
-
 /* ============================================================
    Section divider
    ============================================================ */
@@ -523,19 +471,6 @@ select:focus { border-color: var(--primary); }
   font-size: 12px;
   color: var(--text-2);
   line-height: 1.4;
-}
-
-/* ============================================================
-   WIP placeholder
-   ============================================================ */
-.wip-placeholder {
-  padding: 80px 20px;
-  text-align: center;
-  color: var(--text-3);
-  font-size: 15px;
-  background: var(--surface);
-  border-radius: var(--radius);
-  border: 1px dashed var(--border);
 }
 
 /* ============================================================
@@ -665,7 +600,7 @@ footer {
   font-size: 13px; font-weight: 600;
   padding: 7px 18px;
   cursor: pointer; color: var(--text-2);
-  font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-family: "Noto Sans TC", sans-serif;
   transition: all .13s; white-space: nowrap;
 }
 .oa-ap-btn:hover { border-color: var(--primary-mid); color: var(--primary-dark); }
@@ -680,7 +615,7 @@ footer {
   color: rgba(255,255,255,.65);
   font-size: 13px; font-weight: 500;
   padding: 12px 20px; cursor: pointer;
-  font-family: "Noto Sans TC","Microsoft JhengHei",sans-serif;
+  font-family: "Noto Sans TC", sans-serif;
   border-bottom: 3px solid transparent;
   white-space: nowrap; transition: color .15s;
 }
@@ -705,7 +640,7 @@ footer {
   cursor: pointer;
   color: var(--text-2);
   transition: background .13s, color .13s, border-color .13s;
-  font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: "Noto Sans TC", sans-serif;
   white-space: nowrap;
   line-height: 1.4;
 }
@@ -1537,7 +1472,7 @@ const CLR = {
     '華儲': '#7A315D', '桃園華儲': '#7A315D',
     '遠雄園區': '#0068B7', '遠雄': '#0068B7',
     '聯邦': '#C45000', '優比速': '#5C3D2E',
-    '各航空公司': '#888888', '永儲': '#BBBBBB',
+    '各航空公司': '#666666', '永儲': '#AAAAAA',
     '高雄-華儲': '#C86647', '松山-中科國際物流': '#7192A1', '台中-華信倉儲': '#C08E66',
   },
 };
@@ -1754,8 +1689,11 @@ function allYears() {
 /* ============================================================
    Chart helpers
    ============================================================ */
-function getOrDestroy(id) {
+function destroyChart(id) {
   if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+}
+function getOrDestroy(id) {
+  destroyChart(id);
   return document.getElementById(id).getContext('2d');
 }
 
@@ -2524,10 +2462,10 @@ function renderTaoyuanTerminals() {
     ];
     document.getElementById('ty-term-thead').innerHTML =
       '<tr><th>貨運站／經營者</th>' + cols.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') + '</tr>';
-    document.getElementById('ty-term-tbody').innerHTML = TERMINAL_ENTITIES.map(function(t) {
+    document.getElementById('ty-term-tbody').innerHTML = termsForYear(yr).map(function(t) {
       var d = (DB.cargoData[t.key] || {})[yr] || {};
       return '<tr>'
-        + '<td style="color:' + t.clr + ';font-weight:600;white-space:nowrap">' + t.label + '</td>'
+        + '<td style="color:var(--text);font-weight:700;white-space:nowrap">' + t.label + '</td>'
         + cols.map(function(c) { return '<td class="td-num">' + fmtN(d[c.key]) + '</td>'; }).join('')
         + '</tr>';
     }).join('');
@@ -2555,8 +2493,7 @@ function renderTaoyuanTerminals() {
 
     /* 先清除舊圖 */
     TERM_MAIN.concat([TERMINAL_ENTITIES[TERMINAL_ENTITIES.length - 1]]).forEach(function(t) {
-      var cid = 'chart-term-pie-' + t.key;
-      if (CHARTS[cid]) { CHARTS[cid].destroy(); delete CHARTS[cid]; }
+      destroyChart('chart-term-pie-' + t.key);
     });
 
     grid.innerHTML = pieTerms.map(function(t) {
@@ -2712,7 +2649,6 @@ function buildTradeData(rows, type) {
   var cValKey  = type === 'imp' ? 'imp_val'     : 'exp_val';
   var cCtry = findCol(TRADE_COL[cCtryKey]);
   var cVal  = findCol(TRADE_COL[cValKey]);
-  console.log('[Aviation] Trade(' + type + ') cols:', { cYear, cCat, cCtry, cVal }, '| keys:', Object.keys(s).join(', '));
   if (!cVal) return empty;
 
   var byCategory = {}, byCountry = {}, total = {}, yearsSet = new Set();
@@ -4378,8 +4314,7 @@ function renderAirlinePage() {
       latestY + '年 ' + apLabel + '　各國籍航空公司貨量組成（進出轉口佔比）';
     /* 清除舊圖 */
     AL_AIRLINES.forEach(function(a) {
-      var cid = 'chart-al-mini-' + a.key;
-      if (CHARTS[cid]) { CHARTS[cid].destroy(); delete CHARTS[cid]; }
+      destroyChart('chart-al-mini-' + a.key);
     });
     var airlines = alAirlinesAt(donutState.ap);
     donutGrid.innerHTML = airlines.map(function(a) {
@@ -4790,7 +4725,6 @@ function makeOnce(fn) {
 
 const PAGES = {
   home: {
-    getHash: function() { return 'home'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
@@ -4812,7 +4746,6 @@ const PAGES = {
     }),
   },
   taoyuan: {
-    getHash: function() { return 'taoyuan'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
@@ -4845,7 +4778,6 @@ const PAGES = {
     }),
   },
   'ty-monthly': {
-    getHash: function() { return 'ty-monthly'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
@@ -4875,7 +4807,6 @@ const PAGES = {
     }),
   },
   other: {
-    getHash: function() { return 'other'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
@@ -4894,7 +4825,6 @@ const PAGES = {
     }),
   },
   airline: {
-    getHash: function() { return 'airline'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
@@ -4914,7 +4844,6 @@ const PAGES = {
     }),
   },
   'tpe-ftz': {
-    getHash: function() { return 'tpe-ftz'; },
     init: makeOnce(async function() {
       showLoading(true);
       try {
