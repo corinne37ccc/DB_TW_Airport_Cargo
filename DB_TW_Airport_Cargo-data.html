@@ -798,6 +798,24 @@ footer {
       <div class="card-title">歷年貨品類別堆疊長條圖（公噸）</div>
       <div class="chart-wrap" style="height:300px"><canvas id="chart-ty-stacked"></canvas></div>
     </div>
+    <div class="card">
+      <div class="card-title">貨物流向資料表 — 貨量（公噸）</div>
+      <div class="table-scroll">
+        <table class="data-table" id="ty-flow-val-table">
+          <thead id="ty-flow-val-thead"></thead>
+          <tbody id="ty-flow-val-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">貨物流向資料表 — 佔總計貨運量比例</div>
+      <div class="table-scroll">
+        <table class="data-table" id="ty-flow-pct-table">
+          <thead id="ty-flow-pct-thead"></thead>
+          <tbody id="ty-flow-pct-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- ── 貨運站比較 ── -->
@@ -2311,6 +2329,45 @@ function renderTaoyuanOverview() {
       },
     },
   });
+
+  /* ── 貨物流向資料表：貨量表＋佔總計貨運量比例表（各自獨立、年度新到舊）── */
+  var flowCols = [
+    { key: '總計貨運量',    label: '總計貨運量' },
+    { key: '進口合計',      label: '進口合計' },
+    { key: '出口合計',      label: '出口合計' },
+    { key: '轉口合計',      label: '轉口合計' },
+    { key: '一般及機放進口', label: '一般及機放進口' },
+    { key: '一般及機放出口', label: '一般及機放出口' },
+    { key: '快遞進口',      label: '快遞進口' },
+    { key: '快遞出口',      label: '快遞出口' },
+    { key: '轉口-進倉',     label: '轉口-進倉' },
+    { key: '轉口-出倉',     label: '轉口-出倉' },
+    { key: '轉口-機下直轉', label: '轉口-機下直轉' },
+  ];
+  var flowYears = years.slice().reverse(); /* 2025 → 2015 */
+  var flowHeadRow = '<tr><th>年度</th>' + flowCols.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') + '</tr>';
+
+  document.getElementById('ty-flow-val-thead').innerHTML = flowHeadRow;
+  document.getElementById('ty-flow-val-tbody').innerHTML = flowYears.map(function(yr) {
+    var d2 = (DB.cargoData[ENT] || {})[yr] || {};
+    return '<tr>'
+      + '<td style="color:var(--text);font-weight:700;white-space:nowrap">' + yr + '</td>'
+      + flowCols.map(function(c) { return '<td class="td-num">' + fmtN(d2[c.key] || 0) + '</td>'; }).join('')
+      + '</tr>';
+  }).join('');
+
+  document.getElementById('ty-flow-pct-thead').innerHTML = flowHeadRow;
+  document.getElementById('ty-flow-pct-tbody').innerHTML = flowYears.map(function(yr) {
+    var d2 = (DB.cargoData[ENT] || {})[yr] || {};
+    var tot = d2['總計貨運量'] || 0;
+    return '<tr>'
+      + '<td style="color:var(--text);font-weight:700;white-space:nowrap">' + yr + '</td>'
+      + flowCols.map(function(c) {
+          var pct = tot ? ((d2[c.key] || 0) / tot * 100).toFixed(1) : '0.0';
+          return '<td class="td-num">' + pct + '%</td>';
+        }).join('')
+      + '</tr>';
+  }).join('');
 }
 
 /* ============================================================
